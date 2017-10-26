@@ -1,0 +1,34 @@
+
+
+SELECT @CPT := '123456';
+SELECT @ID_OBRA := '12';
+--  busca pessoa
+select @PESSOA := ID_PESSOA
+		FROM PESSOAS
+		WHERE COD_PESSOA_TELEGRAM = @CPT;
+
+-- busca livro
+ select Min(id_livro)
+		From LIVROS LIV
+		INNER JOIN OBRA OBR ON OBR.ID_OBRA = LIV.COD_OBRA 
+		left join EMPRESTIMOS EMP ON EMP.COD_LIVRO = LIV.ID_LIVRO AND DATA_DEVOLUCAO IS NULL
+		where ID_EMPRESTIMO IS NULL 
+        GROUP BY NOM_OBRA;
+
+-- insere pessoa
+
+
+start transaction;
+insert into PESSOAS (NOM_PESSOA, COD_PESSOA_TELEGRAM, USR_PESSOA) VALUES ( 'Heitor Tomaz' , 109595409 , 'HeitorTomaz')
+
+rollback;
+
+
+select * from PESSOAS
+
+
+start transaction;
+INSERT INTO EMPRESTIMOS
+(COD_LIVRO, COD_PESSOA, DATA_EMPRESTIMO, SIT_EMPRESTIMO)
+VALUES
+(1, 6, NOW(), '01')

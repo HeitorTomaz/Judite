@@ -1,0 +1,36 @@
+USING `BIBLIOTECA_GECOM`
+
+INSERT INTO `BIBLIOTECA_GECOM`.`OBRA`
+(NOM_obra)
+VALUES(
+'Apostila, Física 3');
+
+
+INSERT INTO `BIBLIOTECA_GECOM`.`OBRA`
+(NOM_obra)
+VALUES(
+'Apostila, Física 2');
+
+
+INSERT INTO `BIBLIOTECA_GECOM`.`OBRA`
+(NOM_obra)
+VALUES(
+'Apostila, Física 1');
+
+
+
+
+SELECT * FROM `BIBLIOTECA_GECOM`.`LIVROS`;
+SELECT * FROM `BIBLIOTECA_GECOM`.`OBRA`;
+
+insert into LIVROS
+(COD_OBRA)
+VALUES
+(2), (3), (3), (5)
+
+
+UPDATE LIVROS
+SET STT_LIVRO = 'novo'
+
+
+
