@@ -74,6 +74,7 @@ def support(bot, update):
     except Exception as e:
         print(e)
         print "pegar - deu ruim"
+        cursor = db.cursor()
         cursor.rollback()
 
 support_handler = CommandHandler('support', support)
@@ -126,6 +127,8 @@ def livros(bot, update):
     except Exception as e:
         print(e)
         print "livros - deu ruim"
+        cursor = db.cursor()
+        cursor.rollback()
 
     # finally:
     #     cursor.close()
@@ -227,6 +230,7 @@ def pegar(bot, update):
     except Exception as e:
         print(e)
         print "pegar - deu ruim"
+        cursor = db.cursor()
         cursor.rollback()
     finally:
         # cursor.commit()
@@ -297,6 +301,7 @@ def Emprestimos(bot, update):
     except Exception as e:
         print(e)
         print "emprestimos - deu ruim"
+        cursor = db.cursor()
         cursor.rollback()
 
 Emprestimos_handler = CommandHandler('emprestimos', Emprestimos)
@@ -347,11 +352,13 @@ def Devolver(bot, update):
         cursor.execute(query)
         print "Devolver - comando realizado"
         
+        db.commit()
+        print "Devolver - commit"
         msg = "Devolvido \n"
         
         bot.send_message(chat_id=update.message.chat_id,
                      text=msg)
-                     
+
     except Exception as e:
         print(e)
         print "Devolver - deu ruim"

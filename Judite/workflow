@@ -1,0 +1,17 @@
+Inicializa pedindo para escolher uma biblioteca.
+
+a pessoa escolhe
+
+    inicia sessao (biblioteca, chave?):
+        db.existe pessoa?
+            db.cria_pessoa;
+        db.existe_acesso?
+            db.tipobiblioteca?
+                enviou_chave?
+                    retorna (pede chave ao usuario);
+            db.cria_acesso;
+        db.inicia_sessao;
+
+
+para outras acoes sempre verificar se existe sessao ativa
+
