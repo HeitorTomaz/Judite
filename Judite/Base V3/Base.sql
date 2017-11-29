@@ -2,7 +2,7 @@ CREATE DATABASE  IF NOT EXISTS `BIBLIOTECA` /*!40100 DEFAULT CHARACTER SET latin
 USE `BIBLIOTECA`;
 -- MySQL dump 10.13  Distrib 5.7.19, for Linux (x86_64)
 --
--- Host: localhost    Database: BIBLIOTECA_GECOM
+-- Host: localhost    Database: BIBLIOTECA
 -- ------------------------------------------------------
 -- Server version	5.7.19-0ubuntu0.16.04.1
 
@@ -126,7 +126,7 @@ CREATE TABLE `EMPRESTIMOS` (
   `DATA_EMPRESTIMO` datetime NOT NULL,
   `NUM_EMPRESTIMO` int(11) DEFAULT NULL,
   `SIT_EMPRESTIMO` varchar(45) DEFAULT NULL,
-  `DATA_DEVOLUCAO` datetime DEFAULT NULL,
+  `DT_DEVOLUCAO` datetime DEFAULT NULL,
   PRIMARY KEY (`ID_EMPRESTIMO`),
   KEY `fk_EMPRESTIMOS_SESSAO_idx` (`COD_SESSAO`),
   CONSTRAINT `fk_EMPRESTIMOS_SESSAO` FOREIGN KEY (`COD_SESSAO`) REFERENCES `SESSOES` (`ID_SESSAO`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -199,7 +199,7 @@ DROP TABLE IF EXISTS `SESSOES`;
 CREATE TABLE `SESSOES` (
   `ID_SESSAO` int(11) NOT NULL AUTO_INCREMENT,
   `DT_INICIO` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `TD_FIM` datetime DEFAULT NULL,
+  `DT_FIM` datetime DEFAULT NULL,
   `COD_ACESSO` int(11) NOT NULL,
   PRIMARY KEY (`ID_SESSAO`),
   KEY `fk_SESSOES_ACESSO_idx` (`COD_ACESSO`),
@@ -236,11 +236,11 @@ CREATE TABLE `TIPOS_CONTATO` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping events for database 'BIBLIOTECA_GECOM'
+-- Dumping events for database 'BIBLIOTECA'
 --
 
 --
--- Dumping routines for database 'BIBLIOTECA_GECOM'
+-- Dumping routines for database 'BIBLIOTECA'
 --
 /*!50003 DROP FUNCTION IF EXISTS `FNC_EXISTE_PESSOA` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -262,6 +262,262 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `buscaAreas` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buscaAreas`(varIdBiblioteca int)
+select  AR.ID_AREA,
+			AR.NOM_AREA
+            FROM OBRAS OBR
+            INNER join AREAS AR ON (AR.ID_AREA = OBR.ID_AREA)
+            INNER JOIN LIVROS LIV ON (LIV.COD_OBRA = OBR.ID_OBRA )
+            INNER JOIN BIBLIOTECAS BIB ON (BIB.ID_BIBLIOTECA = LIV.COD_BIBLIOTECA)
+            WHERE ID_BIBLIOTECA = varIdBiblioteca
+            GROUP BY AR.ID_AREA, AR.NOM_AREA ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `buscaBibliotecas` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buscaBibliotecas`()
+SELECT 
+			ID_BIBLIOTECA,
+            NOM_BIBLIOTECA
+    FROM BIBLIOTECAS BIB ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `buscaEmprestimos` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buscaEmprestimos`( varCodPesTel int)
+SELECT ID_EMPRESTIMO, 
+			NOM_OBRA
+    FROM PESSOAS PES
+    INNER JOIN ACESSOS ACE ON (ACE.COD_PESSOA = PES.ID_PESSOA)
+    INNER JOIN SESSOES SE ON (SE.COD_ACESSO = ACE.ID_ACESSO)
+    INNER JOIN EMPRESTIMOS EMP ON (EMP.ID_EMPRESTIMO = SE.COD_SESSAO)
+    INNER JOIN LIVROS LI ON (LI.ID_LIVRO = EMP.COD_LIVRO)
+    INNER JOIN OBRAS OBR ON (OBR.ID_OBRA = LI.COD_OBRA)
+    WHERE PES.COD_PESSOA_TELEGRAM = varCodPesTel
+    AND EMP.DT_DEVOLUCAO IS NULL ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `buscaLivros` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buscaLivros`(varIdBiblioteca int)
+select ID_OBRA,
+			NOM_OBRA
+	FROM OBRAS OBR
+	inner JOIN LIVROS LIV ON (LIV.COD_OBRA = OBR.ID_OBRA )
+	INNER JOIN BIBLIOTECAS BIB ON (BIB.ID_BIBLIOTECA = LIV.COD_BIBLIOTECA)
+	LEFT JOIN EMPRESTIMOS EMP ON (EMP.COD_LIVRO = LIV.ID_LIVRO)
+	WHERE ID_BIBLIOTECA = varIdBiblioteca
+	and EMP.ID_EMPRESTIMO IS NULL ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `buscaLivrosArea` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buscaLivrosArea`(varIdBiblioteca int, varIdArea int)
+select ID_OBRA,
+			NOM_OBRA
+            FROM OBRAS OBR
+            INNER JOIN AREA AR ON (AR.ID_AREA = OBR.COD_AREA)
+            INNER JOIN LIVROS LIV ON (LIV.COD_OBRA = OBR.ID_OBRA )
+            INNER JOIN BIBLIOTECAS BIB ON (BIB.ID_BIBLIOTECA = LIV.COD_BIBLIOTECA)
+            LEFT JOIN EMPRESTIMOS EMP ON (EMP.COD_LIVRO = LIV.ID_LIVRO)
+            WHERE ID_BIBLIOTECA = varIdBiblioteca
+            AND ID_AREA = varIdArea
+            and EMP.ID_EMPRESTIMO IS NULL ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `buscaSenhaBiblioteca` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buscaSenhaBiblioteca`( varIdBiblioteca int)
+SELECT 
+			ID_BIBLIOTECA,
+            NOM_BIBLIOTECA,
+            CHV_BIBLIOTECA
+    FROM BIBLIOTECAS BIB
+    WHERE ID_BIBLIOTECA = varIdBiblioteca ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `buscaSessao` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buscaSessao`(varCodPessoaTelegram int)
+select  ID_PESSOA,
+			ID_ACESSO,
+			ID_SESSAO,
+            ID_BIBLIOTECA
+	FROM PESSOAS PES
+    LEFT JOIN ACESSOS ACE ON (ACE.COD_PESSOA = PES.ID_PESSOA)
+    LEFT JOIN BIBLIOTECAS BIB ON (BIB.ID_BIBLIOTECA = ACE.COD_BIBLIOTECA)
+    LEFT JOIN SESSOES SE ON (SE.COD_ACESSO = ACE.ID_ACESSO)
+    WHERE COD_PESSOA_TELEGRAM = varCodPessoaTelegram
+    AND ACE.DT_FIM IS NULL
+    AND SE.DT_FIM IS NULL ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `concedeAcesso` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `concedeAcesso`( varIdPessoa int, varIdBiblioteca int)
+insert into ACESSOS 
+    (DT_INICIO, COD_BIBLIOTECA, COD_PESSOA)
+    VALUES (now(), varIdBiblioteca, varIdPessoa) ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `criaSessao` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `criaSessao`( varIdAcesso int)
+insert into SESSOES 
+    (DT_INICIO, COD_ACESSO)
+    VALUES (now(),varIdAcesso) ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `encerraSessao` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `encerraSessao`( varIdSessao int)
+UPDATE SESSOES 
+	SET DT_FIM = NOW()
+    WHERE ID_SESSAO = varIdSessao
+    AND DT_FIM IS NULL ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `pegaLivro` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `pegaLivro`( varIdSessao int, varIdObra int)
+INSERT INTO EMPRESTIMOS
+    (DT_INICIO, COD_SESSAO, COD_LIVRO)
+    VALUES 
+    (
+		now(),
+		varIdSessao,
+		(SELECT MIN(ID_LIVRO) 
+        FROM OBRAS
+		INNER JOIN LIVROS ON (LIVROS.COD_OBRA = OBRAS.ID_OBRA)
+        LEFT JOIN EMPRESTIMOS ON (EMPRESTIMOS.COD_LIVRO = LIVROS.ID_LIVRO AND EMPRESTIMOS.DT_DEVOLUCAO)
+        WHERE EMPRESTIMOS.ID_EMPRESTIMO IS NULL
+        AND OBRAS.ID_OBRA = varIdObra) 
+    ) ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -272,4 +528,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-10-28 23:00:09
+-- Dump completed on 2017-11-29 12:44:07
