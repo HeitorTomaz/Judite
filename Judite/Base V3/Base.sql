@@ -1,10 +1,10 @@
 CREATE DATABASE  IF NOT EXISTS `BIBLIOTECA` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `BIBLIOTECA`;
--- MySQL dump 10.13  Distrib 5.7.19, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.20, for Linux (x86_64)
 --
 -- Host: localhost    Database: BIBLIOTECA
 -- ------------------------------------------------------
--- Server version	5.7.19-0ubuntu0.16.04.1
+-- Server version	5.7.20-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -39,6 +39,15 @@ CREATE TABLE `ACESSOS` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `ACESSOS`
+--
+
+LOCK TABLES `ACESSOS` WRITE;
+/*!40000 ALTER TABLE `ACESSOS` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ACESSOS` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `AREA`
 --
 
@@ -51,6 +60,15 @@ CREATE TABLE `AREA` (
   PRIMARY KEY (`ID_AREA`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `AREA`
+--
+
+LOCK TABLES `AREA` WRITE;
+/*!40000 ALTER TABLE `AREA` DISABLE KEYS */;
+/*!40000 ALTER TABLE `AREA` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `AVALIACOES`
@@ -75,6 +93,15 @@ CREATE TABLE `AVALIACOES` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `AVALIACOES`
+--
+
+LOCK TABLES `AVALIACOES` WRITE;
+/*!40000 ALTER TABLE `AVALIACOES` DISABLE KEYS */;
+/*!40000 ALTER TABLE `AVALIACOES` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `BIBLIOTECAS`
 --
 
@@ -91,6 +118,15 @@ CREATE TABLE `BIBLIOTECAS` (
   CONSTRAINT `fk_BIBLIOTECA_TB` FOREIGN KEY (`COD_TB`) REFERENCES `TIPOS_BIBLIOTECA` (`ID_TB`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `BIBLIOTECAS`
+--
+
+LOCK TABLES `BIBLIOTECAS` WRITE;
+/*!40000 ALTER TABLE `BIBLIOTECAS` DISABLE KEYS */;
+/*!40000 ALTER TABLE `BIBLIOTECAS` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `CONTATO`
@@ -111,6 +147,15 @@ CREATE TABLE `CONTATO` (
   CONSTRAINT `fk_CONTATO_TC` FOREIGN KEY (`COD_TC`) REFERENCES `TIPOS_CONTATO` (`ID_TC`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `CONTATO`
+--
+
+LOCK TABLES `CONTATO` WRITE;
+/*!40000 ALTER TABLE `CONTATO` DISABLE KEYS */;
+/*!40000 ALTER TABLE `CONTATO` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `EMPRESTIMOS`
@@ -134,6 +179,15 @@ CREATE TABLE `EMPRESTIMOS` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `EMPRESTIMOS`
+--
+
+LOCK TABLES `EMPRESTIMOS` WRITE;
+/*!40000 ALTER TABLE `EMPRESTIMOS` DISABLE KEYS */;
+/*!40000 ALTER TABLE `EMPRESTIMOS` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `LIVROS`
 --
 
@@ -151,6 +205,15 @@ CREATE TABLE `LIVROS` (
   CONSTRAINT `fk_LIVROS_OBRA` FOREIGN KEY (`COD_OBRA`) REFERENCES `OBRAS` (`ID_OBRA`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `LIVROS`
+--
+
+LOCK TABLES `LIVROS` WRITE;
+/*!40000 ALTER TABLE `LIVROS` DISABLE KEYS */;
+/*!40000 ALTER TABLE `LIVROS` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `OBRAS`
@@ -173,6 +236,15 @@ CREATE TABLE `OBRAS` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `OBRAS`
+--
+
+LOCK TABLES `OBRAS` WRITE;
+/*!40000 ALTER TABLE `OBRAS` DISABLE KEYS */;
+/*!40000 ALTER TABLE `OBRAS` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `PESSOAS`
 --
 
@@ -188,6 +260,15 @@ CREATE TABLE `PESSOAS` (
   PRIMARY KEY (`ID_PESSOA`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `PESSOAS`
+--
+
+LOCK TABLES `PESSOAS` WRITE;
+/*!40000 ALTER TABLE `PESSOAS` DISABLE KEYS */;
+/*!40000 ALTER TABLE `PESSOAS` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `SESSOES`
@@ -208,6 +289,15 @@ CREATE TABLE `SESSOES` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `SESSOES`
+--
+
+LOCK TABLES `SESSOES` WRITE;
+/*!40000 ALTER TABLE `SESSOES` DISABLE KEYS */;
+/*!40000 ALTER TABLE `SESSOES` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `TIPOS_BIBLIOTECA`
 --
 
@@ -222,6 +312,15 @@ CREATE TABLE `TIPOS_BIBLIOTECA` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `TIPOS_BIBLIOTECA`
+--
+
+LOCK TABLES `TIPOS_BIBLIOTECA` WRITE;
+/*!40000 ALTER TABLE `TIPOS_BIBLIOTECA` DISABLE KEYS */;
+/*!40000 ALTER TABLE `TIPOS_BIBLIOTECA` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `TIPOS_CONTATO`
 --
 
@@ -234,6 +333,15 @@ CREATE TABLE `TIPOS_CONTATO` (
   PRIMARY KEY (`ID_TC`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `TIPOS_CONTATO`
+--
+
+LOCK TABLES `TIPOS_CONTATO` WRITE;
+/*!40000 ALTER TABLE `TIPOS_CONTATO` DISABLE KEYS */;
+/*!40000 ALTER TABLE `TIPOS_CONTATO` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Dumping events for database 'BIBLIOTECA'
@@ -257,6 +365,31 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `FNC_EXISTE_PESSOA`(	CPT INT
 BEGIN
 RETURN (SELECT COUNT(ID_PESSOA) FROM PESSOAS WHERE CODIGO_PESSOA_TELEGRAM = CPT);
 END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `buscaAcesso` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buscaAcesso`(varCodPessoaTelegram int, varCodBiblioteca int)
+select  ID_PESSOA,
+			ID_ACESSO,
+            ID_BIBLIOTECA
+	FROM PESSOAS PES
+    LEFT JOIN ACESSOS ON (ACESSOS.COD_PESSOA = PESSOAS.ID_PESSOA)
+    LEFT JOIN BIBLIOTECAS ON (BIBLIOTECAS.ID_BIBLIOTECA = ACESSOS.COD_BIBLIOTECA)
+    WHERE COD_PESSOA_TELEGRAM = varCodPessoaTelegram
+    AND BIBLIOTECAS.ID_BIBLIOTECA = varCodBiblioteca
+    AND ACESSOS.DT_FIM IS NULL ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
@@ -469,6 +602,25 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `devolveLivro` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `devolveLivro`(varCodEmprestimo int)
+UPDATE EMPRESTIMOS
+    SET	DT_DEVOLUCAO = NOW()
+    WHERE ID_EMPRESTIMO = varCodEmprestimo ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `encerraSessao` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -528,4 +680,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-29 12:44:07
+-- Dump completed on 2017-11-29 14:21:25
