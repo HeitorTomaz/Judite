@@ -39,15 +39,6 @@ CREATE TABLE `ACESSOS` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `ACESSOS`
---
-
-LOCK TABLES `ACESSOS` WRITE;
-/*!40000 ALTER TABLE `ACESSOS` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ACESSOS` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `AREA`
 --
 
@@ -58,17 +49,8 @@ CREATE TABLE `AREA` (
   `ID_AREA` int(11) NOT NULL AUTO_INCREMENT,
   `NOM_AREA` varchar(255) NOT NULL,
   PRIMARY KEY (`ID_AREA`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `AREA`
---
-
-LOCK TABLES `AREA` WRITE;
-/*!40000 ALTER TABLE `AREA` DISABLE KEYS */;
-/*!40000 ALTER TABLE `AREA` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `AVALIACOES`
@@ -93,15 +75,6 @@ CREATE TABLE `AVALIACOES` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `AVALIACOES`
---
-
-LOCK TABLES `AVALIACOES` WRITE;
-/*!40000 ALTER TABLE `AVALIACOES` DISABLE KEYS */;
-/*!40000 ALTER TABLE `AVALIACOES` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `BIBLIOTECAS`
 --
 
@@ -112,21 +85,12 @@ CREATE TABLE `BIBLIOTECAS` (
   `ID_BIBLIOTECA` int(11) NOT NULL AUTO_INCREMENT,
   `NOM_BIBLIOTECA` varchar(255) NOT NULL,
   `CHV_BIBLIOTECA` int(11) DEFAULT NULL,
-  `COD_TB` int(11) NOT NULL,
+  `COD_TB` int(11) DEFAULT NULL,
   PRIMARY KEY (`ID_BIBLIOTECA`),
   KEY `fk_new_table_1_idx` (`COD_TB`),
   CONSTRAINT `fk_BIBLIOTECA_TB` FOREIGN KEY (`COD_TB`) REFERENCES `TIPOS_BIBLIOTECA` (`ID_TB`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `BIBLIOTECAS`
---
-
-LOCK TABLES `BIBLIOTECAS` WRITE;
-/*!40000 ALTER TABLE `BIBLIOTECAS` DISABLE KEYS */;
-/*!40000 ALTER TABLE `BIBLIOTECAS` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `CONTATO`
@@ -147,15 +111,6 @@ CREATE TABLE `CONTATO` (
   CONSTRAINT `fk_CONTATO_TC` FOREIGN KEY (`COD_TC`) REFERENCES `TIPOS_CONTATO` (`ID_TC`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `CONTATO`
---
-
-LOCK TABLES `CONTATO` WRITE;
-/*!40000 ALTER TABLE `CONTATO` DISABLE KEYS */;
-/*!40000 ALTER TABLE `CONTATO` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `EMPRESTIMOS`
@@ -179,15 +134,6 @@ CREATE TABLE `EMPRESTIMOS` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `EMPRESTIMOS`
---
-
-LOCK TABLES `EMPRESTIMOS` WRITE;
-/*!40000 ALTER TABLE `EMPRESTIMOS` DISABLE KEYS */;
-/*!40000 ALTER TABLE `EMPRESTIMOS` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `LIVROS`
 --
 
@@ -203,17 +149,36 @@ CREATE TABLE `LIVROS` (
   KEY `fk_LIVROS_BIBLIOTECA_idx` (`COD_BIBLIOTECA`),
   CONSTRAINT `fk_LIVROS_BIBLIOTECA` FOREIGN KEY (`COD_BIBLIOTECA`) REFERENCES `BIBLIOTECAS` (`ID_BIBLIOTECA`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_LIVROS_OBRA` FOREIGN KEY (`COD_OBRA`) REFERENCES `OBRAS` (`ID_OBRA`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `LIVROS`
+-- Temporary table structure for view `LivrosDisponiveisPorBiblioteca`
 --
 
-LOCK TABLES `LIVROS` WRITE;
-/*!40000 ALTER TABLE `LIVROS` DISABLE KEYS */;
-/*!40000 ALTER TABLE `LIVROS` ENABLE KEYS */;
-UNLOCK TABLES;
+DROP TABLE IF EXISTS `LivrosDisponiveisPorBiblioteca`;
+/*!50001 DROP VIEW IF EXISTS `LivrosDisponiveisPorBiblioteca`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `LivrosDisponiveisPorBiblioteca` AS SELECT 
+ 1 AS `NOM_BIBLIOTECA`,
+ 1 AS `NOM_OBRA`,
+ 1 AS `COUNT(*)`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary table structure for view `LivrosPorBiblioteca`
+--
+
+DROP TABLE IF EXISTS `LivrosPorBiblioteca`;
+/*!50001 DROP VIEW IF EXISTS `LivrosPorBiblioteca`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `LivrosPorBiblioteca` AS SELECT 
+ 1 AS `NOM_BIBLIOTECA`,
+ 1 AS `NOM_OBRA`,
+ 1 AS `COUNT(*)`*/;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `OBRAS`
@@ -232,17 +197,8 @@ CREATE TABLE `OBRAS` (
   PRIMARY KEY (`ID_OBRA`),
   KEY `fk_OBRAS_AREA_idx` (`COD_AREA`),
   CONSTRAINT `fk_OBRAS_AREA` FOREIGN KEY (`COD_AREA`) REFERENCES `AREA` (`ID_AREA`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `OBRAS`
---
-
-LOCK TABLES `OBRAS` WRITE;
-/*!40000 ALTER TABLE `OBRAS` DISABLE KEYS */;
-/*!40000 ALTER TABLE `OBRAS` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `PESSOAS`
@@ -260,15 +216,6 @@ CREATE TABLE `PESSOAS` (
   PRIMARY KEY (`ID_PESSOA`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `PESSOAS`
---
-
-LOCK TABLES `PESSOAS` WRITE;
-/*!40000 ALTER TABLE `PESSOAS` DISABLE KEYS */;
-/*!40000 ALTER TABLE `PESSOAS` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `SESSOES`
@@ -289,15 +236,6 @@ CREATE TABLE `SESSOES` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `SESSOES`
---
-
-LOCK TABLES `SESSOES` WRITE;
-/*!40000 ALTER TABLE `SESSOES` DISABLE KEYS */;
-/*!40000 ALTER TABLE `SESSOES` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `TIPOS_BIBLIOTECA`
 --
 
@@ -312,15 +250,6 @@ CREATE TABLE `TIPOS_BIBLIOTECA` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `TIPOS_BIBLIOTECA`
---
-
-LOCK TABLES `TIPOS_BIBLIOTECA` WRITE;
-/*!40000 ALTER TABLE `TIPOS_BIBLIOTECA` DISABLE KEYS */;
-/*!40000 ALTER TABLE `TIPOS_BIBLIOTECA` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `TIPOS_CONTATO`
 --
 
@@ -333,15 +262,6 @@ CREATE TABLE `TIPOS_CONTATO` (
   PRIMARY KEY (`ID_TC`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `TIPOS_CONTATO`
---
-
-LOCK TABLES `TIPOS_CONTATO` WRITE;
-/*!40000 ALTER TABLE `TIPOS_CONTATO` DISABLE KEYS */;
-/*!40000 ALTER TABLE `TIPOS_CONTATO` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping events for database 'BIBLIOTECA'
@@ -365,6 +285,102 @@ CREATE DEFINER=`root`@`localhost` FUNCTION `FNC_EXISTE_PESSOA`(	CPT INT
 BEGIN
 RETURN (SELECT COUNT(ID_PESSOA) FROM PESSOAS WHERE CODIGO_PESSOA_TELEGRAM = CPT);
 END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `ADM_INSERE_AREA` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ADM_INSERE_AREA`(varNomeArea varchar(30))
+INSERT INTO `BIBLIOTECA`.`AREA`
+	(`NOM_AREA`)
+	VALUES
+	(varNomeArea) ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `ADM_INSERE_BIBLIOTECA` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ADM_INSERE_BIBLIOTECA`(varNomBiblioteca varchar(30), varChave int)
+INSERT INTO `BIBLIOTECA`.`BIBLIOTECAS`
+	(`NOM_BIBLIOTECA`,
+	`CHV_BIBLIOTECA`)
+	VALUES
+	(varNomBiblioteca,
+	varChave) ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `ADM_INSERE_LIVRO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ADM_INSERE_LIVRO`(varCodObra int, varCodBiblioteca int)
+INSERT INTO `BIBLIOTECA`.`LIVROS`
+(`COD_OBRA`,
+`COD_BIBLIOTECA`)
+VALUES
+(varCodObra,
+varCodBiblioteca) ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `ADM_INSERE_OBRA` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ADM_INSERE_OBRA`(varNomeObra varchar(255), 
+								varIDArea int, 
+                                varDescricaoObra varchar(255), 
+                                varNomAutor varchar(255),
+                                varNomEditora varchar(255))
+INSERT INTO `BIBLIOTECA`.`OBRAS`
+(`NOM_OBRA`,
+`DES_OBRA`,
+`NOM_AUTOR`,
+`NOM_EDITORA`,
+`COD_AREA`)
+VALUES
+(varNomeObra,
+varDescricaoObra,
+varNomAutor,
+varNomEditora,
+varIDArea) ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
@@ -641,6 +657,35 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `inserePessoa` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `inserePessoa`(varCodPesTel int, 
+									varUsrPes varchar(255), 
+                                    varNomPes varchar(255), 
+                                    varTelPes varchar(255) )
+INSERT INTO `BIBLIOTECA`.`PESSOAS`
+(`NOM_PESSOA`,
+`TEL_PESSOA`,
+`COD_PESSOA_TELEGRAM`,
+`USR_PESSOA`)
+VALUES
+(varNomPes,
+varTelPes,
+varCodPesTel,
+varUsrPes) ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `pegaLivro` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -670,6 +715,42 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Final view structure for view `LivrosDisponiveisPorBiblioteca`
+--
+
+/*!50001 DROP VIEW IF EXISTS `LivrosDisponiveisPorBiblioteca`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `LivrosDisponiveisPorBiblioteca` AS select `BIBLIOTECAS`.`NOM_BIBLIOTECA` AS `NOM_BIBLIOTECA`,`OBRAS`.`NOM_OBRA` AS `NOM_OBRA`,count(0) AS `COUNT(*)` from (((`LIVROS` join `BIBLIOTECAS` on((`BIBLIOTECAS`.`ID_BIBLIOTECA` = `LIVROS`.`COD_BIBLIOTECA`))) join `OBRAS` on((`OBRAS`.`ID_OBRA` = `LIVROS`.`COD_OBRA`))) left join `EMPRESTIMOS` on(((`EMPRESTIMOS`.`COD_LIVRO` = `LIVROS`.`ID_LIVRO`) and isnull(`EMPRESTIMOS`.`DT_DEVOLUCAO`)))) where isnull(`EMPRESTIMOS`.`ID_EMPRESTIMO`) group by `BIBLIOTECAS`.`NOM_BIBLIOTECA`,`OBRAS`.`NOM_OBRA` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `LivrosPorBiblioteca`
+--
+
+/*!50001 DROP VIEW IF EXISTS `LivrosPorBiblioteca`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `LivrosPorBiblioteca` AS select `BIBLIOTECAS`.`NOM_BIBLIOTECA` AS `NOM_BIBLIOTECA`,`OBRAS`.`NOM_OBRA` AS `NOM_OBRA`,count(0) AS `COUNT(*)` from ((`LIVROS` join `BIBLIOTECAS` on((`BIBLIOTECAS`.`ID_BIBLIOTECA` = `LIVROS`.`COD_BIBLIOTECA`))) join `OBRAS` on((`OBRAS`.`ID_OBRA` = `LIVROS`.`COD_OBRA`))) group by `BIBLIOTECAS`.`NOM_BIBLIOTECA`,`OBRAS`.`NOM_OBRA` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -680,4 +761,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-29 14:21:25
+-- Dump completed on 2017-11-29 23:46:48
