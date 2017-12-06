@@ -27,7 +27,7 @@ def start(bot, update):
         Shows an welcome message and help info about the available commands.
     """
     me = bot.get_me()
-
+    print "start\n"
     # Welcome message
     # msg = "Hello!\n"
     # msg += "I'm {0} and I came here to help you.\n".format(me.first_name)
@@ -35,14 +35,16 @@ def start(bot, update):
     # msg += "/support - Opens a new support ticket\n"
     # msg += "/settings - Settings of your account\n\n"
     msg = "Ola, eu sou Judite, a bibliotecaria.\n Esses comandos vao te ajudar:\n\n"
+    msg += "/Bibliotecas - Exibe todas as bibliotecas\n"
+    msg += "/Conectar [id] - Acessa uma biblioteca\n"
     msg += "/livros - Exibe os livros disponiveis\n"
     msg += "/pegar [id] - Marca um livro como estando com voce\n"
     msg += "/emprestimos - Exibe os seus emprestimos\n"
     msg += "/devolver [id] - devolve um livro que estava com voce\n"
 
     # Commands menu
-    main_menu_keyboard = [[telegram.KeyboardButton('/livros')]#,
-                          #,telegram.KeyboardButton('/start')],
+    main_menu_keyboard = [[telegram.KeyboardButton('/Bibliotecas')]
+                          ,[telegram.KeyboardButton('/livros')]
                           ,[telegram.KeyboardButton('/emprestimos')]]
     reply_kb_markup = telegram.ReplyKeyboardMarkup(main_menu_keyboard,
                                                    resize_keyboard=True,
@@ -153,33 +155,41 @@ def pegar(bot, update):
         cursor = db.cursor()
         print "PEGAR - criei o cursor"
 
-        query =  ' select ID_PESSOA'
-        query += ' FROM PESSOAS'
-        query += ' WHERE COD_PESSOA_TELEGRAM = ' + str(user.id)
+        result = BuscaSessao(bot, update)
 
-        cursor.execute(query)
-        print "busquei a pessoa"
-        results = cursor.fetchall()
+        print "result[0] = " + str(result[0])
+        print "result[1] = " + str(result[1])
+        print "result[2] = " + str(result[2])
 
-        if (len(results) == 0):
+        if (result[0] == NULL):
             print "novo por aqui"
             #query =  " start transaction; "
-            query = " insert into PESSOAS"
-            query += " (NOM_PESSOA, COD_PESSOA_TELEGRAM, USR_PESSOA)"
-            query += " VALUES ( '" + user.first_name + " " + user.last_name + "'"
-            query += " , "+ str(user.id)
-            query += " , '"+ user.username +"')"
-            print "/ " + query + " /"
-            cursor.execute(query)
+            # query = " insert into PESSOAS"
+            # query += " (NOM_PESSOA, COD_PESSOA_TELEGRAM, USR_PESSOA)"
+            # query += " VALUES ( '" + user.first_name + " " + user.last_name + "'"
+            # query += " , "+ str(user.id)
+            # query += " , '"+ user.username +"')"
+            # print "/ " + query + " /"
+            # cursor.execute(query)
+            # print "inseri pessoa"
+            print "Criei o cursor"
+            nome = user.first_name + " " + user.last_name
+            args = [user.id, user.username , nome ]
+            retorno = cursor.callproc( "BIBLIOTECA.buscaBibliotecas", [args])
+            db.commit()
             print "inseri pessoa"
+            # query =  ' select ID_PESSOA'
+            # query += ' FROM PESSOAS'
+            # query += ' WHERE COD_PESSOA_TELEGRAM = ' + str(user.id)
 
-            query =  ' select ID_PESSOA'
-            query += ' FROM PESSOAS'
-            query += ' WHERE COD_PESSOA_TELEGRAM = ' + str(user.id)
-
-            cursor.execute(query)
-            print "busquei a pessoa dnv"
-            results = cursor.fetchall()
+            # cursor.execute(query)
+            # print "busquei a pessoa dnv"
+            # results = cursor.fetchall()
+            start(bot, update)
+            return 
+        if (result[2] == NULL):
+            Bibliotecas(bot, update)
+            return 
 
         for row in results:
             ID_PESSOA = row[0] 
@@ -370,6 +380,44 @@ dispatcher.add_handler(Devolver_handler)
 
 
 
+def Bibliotecas(bot, update):
+    try:
+        user = update.message.from_user
+        ID_PESSOA_TELEGRAM = user.id
+        query = " call BIBLIOTECA.buscaBibliotecas(); "
+
+        cursor = db.cursor()
+        print "Criei o cursor"
+        cursor.callproc( "BIBLIOTECA.buscaBibliotecas")
+        print "Bibliotecas - comando realizado"
+
+        for res in cursor.stored_results():
+            results = res.fetchall()
+
+
+        if (results[0][0] == None):
+            msg = "Bibliotecas - nenhuma Biblioteca encontrada"
+            print msg
+            bot.send_message(chat_id=update.message.chat_id,
+                        text=msg)
+            return
+        print results[0][0]
+        msg = "ID - Biblioteca \n"
+        for row in results:
+            msg += "/" + str(row[0]) + " - " +  row[1] + "\n"
+        func = "BIBLIOTECAS"
+        InsereLog(func, ID_PESSOA_TELEGRAM)
+
+        bot.send_message(chat_id=update.message.chat_id,
+                        text=msg)
+    except Exception as e:
+        print(e)
+        print "Bibliotecas - deu ruim"
+        cursor = db.cursor()
+        cursor.rollback()
+
+Emprestimos_handler = CommandHandler('bibliotecas', Bibliotecas)
+dispatcher.add_handler(Emprestimos_handler)
 
 
 
@@ -383,3 +431,35 @@ def unknown(bot, update):
 
 unknown_handler = MessageHandler([Filters.command], unknown)
 dispatcher.add_handler(unknown_handler)
+
+
+
+
+def BuscaSessao(bot, update):
+    user = update.message.from_user
+    ID_PESSOA_TELEGRAM = user.id
+    cursor = db.cursor()
+
+    #query = " call BIBLIOTECA.buscaSessao( " + str(ID_PESSOA_TELEGRAM) + " ); "
+    args = [ID_PESSOA_TELEGRAM]
+    cursor.callproc( "BIBLIOTECA.buscaSessao", args)
+    #cursor.execute(query)
+    for res in cursor.stored_results():
+        if res[0][0] == NULL:
+            return [NULL, NULL, NULL]
+        results = res.fetchone()
+
+    return results
+
+
+def InsereLog(funcao, ID_PESSOA_TELEGRAM):
+    cursor = db.cursor()
+
+    query = " call BIBLIOTECA.insereLog( " + str(ID_PESSOA_TELEGRAM) +", '"+ str(funcao) + "' ); "
+
+    cursor.execute(query)
+
+    return 
+
+
+
