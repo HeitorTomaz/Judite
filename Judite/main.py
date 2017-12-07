@@ -2,7 +2,7 @@ import telegram
 import configparser
 # import redis
 import mysql.connector
-
+#!/usr/bin/python
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Configuring bot
@@ -23,38 +23,66 @@ db = mysql.connector.connect(user=config['DB']['user'],
 
 
 def start(bot, update):
-    """
-        Shows an welcome message and help info about the available commands.
-    """
-    me = bot.get_me()
-    print "start\n"
-    # Welcome message
-    # msg = "Hello!\n"
-    # msg += "I'm {0} and I came here to help you.\n".format(me.first_name)
-    # msg += "What would you like to do?\n\n"
-    # msg += "/support - Opens a new support ticket\n"
-    # msg += "/settings - Settings of your account\n\n"
-    msg = "Ola, eu sou Judite, a bibliotecaria.\n Esses comandos vao te ajudar:\n\n"
-    msg += "/Bibliotecas - Exibe todas as bibliotecas\n"
-    msg += "/Conectar [id] - Acessa uma biblioteca\n"
-    msg += "/livros - Exibe os livros disponiveis\n"
-    msg += "/pegar [id] - Marca um livro como estando com voce\n"
-    msg += "/emprestimos - Exibe os seus emprestimos\n"
-    msg += "/devolver [id] - devolve um livro que estava com voce\n"
+    try:
+        """
+            Shows an welcome message and help info about the available commands.
+        """
+        me = bot.get_me()
+        user = update.message.from_user
+        ID_PESSOA_TELEGRAM = user.id
+        print "start\n"
+        msg = "Ola, eu sou Judite, a bibliotecaria.\n"
+        
+        
+        result = BuscaSessao(bot, update)
+        print "len(result) == " + str(len(result))
 
-    # Commands menu
-    main_menu_keyboard = [[telegram.KeyboardButton('/Bibliotecas')]
-                          ,[telegram.KeyboardButton('/livros')]
-                          ,[telegram.KeyboardButton('/emprestimos')]]
-    reply_kb_markup = telegram.ReplyKeyboardMarkup(main_menu_keyboard,
-                                                   resize_keyboard=True,
-                                                   one_time_keyboard=True)
+        if (len(result) == 0):
+            print "novo por aqui"
+            cursor = db.cursor()
+            nome = user.first_name + " " + user.last_name
+            print "nome = " + nome
+            query = " call BIBLIOTECA.inserePessoa( " + str(user.id) +", '" + user.username +"', '" + nome + "'); "
+            print query
+            cursor.execute(query)
 
-    # Send the message with menu
-    bot.send_message(chat_id=update.message.chat_id,
-                     text=msg,
-                     reply_markup=reply_kb_markup)
+            db.commit()
+            print "inseri pessoa"
+        else:
+            if str(result[0][3]) != "":
+                msg += "Conectado a biblioteca: " + str(result[0][3]) + "\n\n"
+            
 
+
+        msg += "Esses comandos vao te ajudar:\n\n"
+        msg += "/Bibliotecas - Exibe todas as bibliotecas\n"
+        msg += "/Conectar [id] - Acessa uma biblioteca\n"
+        msg += "/Livros - Exibe os livros disponiveis\n"
+        msg += "/Pegar [id] - Marca um livro como estando com voce\n"
+        msg += "/Emprestimos - Exibe os seus emprestimos\n"
+        msg += "/Devolver [id] - devolve um livro que estava com voce\n"
+
+        # Commands menu
+        main_menu_keyboard = [[telegram.KeyboardButton('/Bibliotecas')]
+                            ,[telegram.KeyboardButton('/Livros')]
+                            ,[telegram.KeyboardButton('/Emprestimos')]
+                            ,[telegram.KeyboardButton('/start')]]
+        reply_kb_markup = telegram.ReplyKeyboardMarkup(main_menu_keyboard,
+                                                    resize_keyboard=True,
+                                                    one_time_keyboard=True)
+
+        func = "START"
+        InsereLog(func, ID_PESSOA_TELEGRAM)
+        db.commit()
+        # Send the message with menu
+        bot.send_message(chat_id=update.message.chat_id,
+                        text=msg,
+                        reply_markup=reply_kb_markup)
+    except Exception as e:
+        print(e)
+        print "start - deu ruim"
+        cursor = db.cursor()
+        db.rollback()
 
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
@@ -77,7 +105,7 @@ def support(bot, update):
         print(e)
         print "pegar - deu ruim"
         cursor = db.cursor()
-        cursor.rollback()
+        db.rollback()
 
 support_handler = CommandHandler('support', support)
 dispatcher.add_handler(support_handler)
@@ -88,25 +116,44 @@ dispatcher.add_handler(support_handler)
 
 def livros(bot, update):
     try:
-        
+        user = update.message.from_user
+        ID_PESSOA_TELEGRAM = user.id
         print "livros - entrei"
         cursor = db.cursor()
         print "livros - criei o cursor"
         
-        query =  " select ID_OBRA, NOM_OBRA, count(NOM_OBRA)  " 
-        query += " From LIVROS LIV "
-        query += " INNER JOIN OBRAS OBR ON OBR.ID_OBRA = LIV.COD_OBRA "
-        query += " left join EMPRESTIMOS EMP ON EMP.COD_LIVRO = LIV.ID_LIVRO AND DATA_DEVOLUCAO IS NULL "
-        query += " where ID_EMPRESTIMO IS NULL "
-        query += " GROUP BY ID_OBRA, NOM_OBRA "
-        query += " order by NOM_OBRA "
+        # query =  " select ID_OBRA, NOM_OBRA, count(NOM_OBRA)  " 
+        # query += " From LIVROS LIV "
+        # query += " INNER JOIN OBRAS OBR ON OBR.ID_OBRA = LIV.COD_OBRA "
+        # query += " left join EMPRESTIMOS EMP ON EMP.COD_LIVRO = LIV.ID_LIVRO AND DATA_DEVOLUCAO IS NULL "
+        # query += " where ID_EMPRESTIMO IS NULL "
+        # query += " GROUP BY ID_OBRA, NOM_OBRA "
+        # query += " order by NOM_OBRA "
 
+        result = BuscaSessao(bot, update)
+        print 4
+        print "len(result) == " + str(len(result))
 
-        cursor.execute(query)
-        print "livros - executei a consulta"
+        if (len(result) == 0):
+            #novo por aqui
+            start(bot, update)
+            return 
+        if (str(result[0][2]) == ""):
+            Bibliotecas(bot, update)
+            return 
         
+
+        args = [result[0][1]]
+
+        cursor.callproc( "BIBLIOTECA.buscaLivros", args)
+        print "livros - executei a consulta"
+        for res in cursor.stored_results():
+            print 2
+            results = res.fetchall()
+
+        print " result[0] = " + str(result[0])
+            
         msg = "ID - LIVRO (QUANTIDADE) \n"
-        results = cursor.fetchall()
         if (len(results) == 0):
             msg = "tem nada nessa biblioteca nao parceiro"
             print msg
@@ -114,14 +161,12 @@ def livros(bot, update):
                             text=msg)
             return
         for row in results:
-            msg += str(row[0]) + " - " + row[1] + " ("+str(row[2]) +")\n"
+            msg += "/" + str(row[0]) + " - " + row[1] + " ("+str(row[2]) +")\n"
 
-        # msg = "Livros disponiveis: \n\n"
-        # msg+= "1 - Calculo 1 - James Stewart\n"
-        # msg+= "2 - O Torcicologista, Excelencia - Goncalo M. Tavares\n"
-        # msg+= "3 - Apostila de Fis Exp 3\n\n"
         
-        
+        func = "LIVROS"
+        InsereLog(func, ID_PESSOA_TELEGRAM)
+        db.commit()
         
         bot.send_message(chat_id=update.message.chat_id,
                         text=msg)
@@ -130,7 +175,7 @@ def livros(bot, update):
         print(e)
         print "livros - deu ruim"
         cursor = db.cursor()
-        cursor.rollback()
+        db.rollback()
 
     # finally:
     #     cursor.close()
@@ -145,7 +190,9 @@ def pegar(bot, update):
     try:
         
         user = update.message.from_user
+        ID_PESSOA_TELEGRAM = user.id
         text = update.message.text.replace("/pegar", "")
+        text = text.replace(" ", "")
         text = text.strip()
 
         print "id usuario: " + str(user.id)
@@ -156,49 +203,24 @@ def pegar(bot, update):
         print "PEGAR - criei o cursor"
 
         result = BuscaSessao(bot, update)
+        print 4
+        print "len(result) == " + str(len(result))
 
-        print "result[0] = " + str(result[0])
-        print "result[1] = " + str(result[1])
-        print "result[2] = " + str(result[2])
-
-        if (result[0] == NULL):
-            print "novo por aqui"
-            #query =  " start transaction; "
-            # query = " insert into PESSOAS"
-            # query += " (NOM_PESSOA, COD_PESSOA_TELEGRAM, USR_PESSOA)"
-            # query += " VALUES ( '" + user.first_name + " " + user.last_name + "'"
-            # query += " , "+ str(user.id)
-            # query += " , '"+ user.username +"')"
-            # print "/ " + query + " /"
-            # cursor.execute(query)
-            # print "inseri pessoa"
-            print "Criei o cursor"
-            nome = user.first_name + " " + user.last_name
-            args = [user.id, user.username , nome ]
-            retorno = cursor.callproc( "BIBLIOTECA.buscaBibliotecas", [args])
-            db.commit()
-            print "inseri pessoa"
-            # query =  ' select ID_PESSOA'
-            # query += ' FROM PESSOAS'
-            # query += ' WHERE COD_PESSOA_TELEGRAM = ' + str(user.id)
-
-            # cursor.execute(query)
-            # print "busquei a pessoa dnv"
-            # results = cursor.fetchall()
+        if (len(result) == 0):
+            #novo por aqui
             start(bot, update)
             return 
-        if (result[2] == NULL):
+        if (str(result[0][2]) == ""):
             Bibliotecas(bot, update)
             return 
 
-        for row in results:
-            ID_PESSOA = row[0] 
-            print "ID_PESSOA: " + str(ID_PESSOA)
-        
+        sessao = str(result[0][2])
+        IdObra = text
+
         query =  ' select MIN(LIV.ID_LIVRO)'
         query += ' From LIVROS LIV'
-        query += ' INNER JOIN OBRAS OBR ON OBR.ID_OBRA = LIV.COD_OBRA'
-        query += ' left join EMPRESTIMOS EMP ON EMP.COD_LIVRO = LIV.ID_LIVRO AND DATA_DEVOLUCAO IS NULL'
+        query += ' INNER JOIN OBRAS OBR ON OBR.ID_OBRA = LIV.COD_OBRA '
+        query += ' left join EMPRESTIMOS EMP ON ( EMP.COD_LIVRO = LIV.ID_LIVRO AND EMP.DT_DEVOLUCAO IS NULL ) '
         query += ' where ID_EMPRESTIMO IS NULL'
         query += ' AND ID_OBRA = ' + text
         query += ' '
@@ -216,21 +238,16 @@ def pegar(bot, update):
                             text=msg)            
             return
         
-        for row in results:
-            ID_LIVRO = row[0] 
-            print "ID_LIVRO: " + str(ID_LIVRO)
 
-        query =  " "
-        query += " INSERT INTO EMPRESTIMOS"
-        query += " (COD_LIVRO, COD_PESSOA, DATA_EMPRESTIMO, SIT_EMPRESTIMO)"
-        query += " VALUES"
-        query += " (" + str(ID_LIVRO) + ", " + str(ID_PESSOA) + ", NOW(), '01')"
+        query = " call BIBLIOTECA.pegaLivro( " + str(sessao) + ", " + str(IdObra)  + " ); "
 
         cursor.execute(query)
         print "Inseri o emprestimo. "
 
         msg = "Ok, bons estudos.\n\n"        
         
+        func = "PEGAR"
+        InsereLog(func, ID_PESSOA_TELEGRAM)
         db.commit()
         
         print "commit"
@@ -241,7 +258,7 @@ def pegar(bot, update):
         print(e)
         print "pegar - deu ruim"
         cursor = db.cursor()
-        cursor.rollback()
+        db.rollback()
     finally:
         # cursor.commit()
         # cursor.close()
@@ -268,7 +285,7 @@ def execute(bot, update):
     except Exception as e:
         print(e)
         print "pegar - deu ruim"
-        cursor.rollback()
+        db.rollback()
 
 execute_handler = CommandHandler('execute', execute)
 dispatcher.add_handler(execute_handler)
@@ -278,22 +295,35 @@ def Emprestimos(bot, update):
     try:
         print "emprestimos - inicio"
         user = update.message.from_user
+        ID_PESSOA_TELEGRAM = user.id
         #text = update.message.text.replace("/execute", "")
 
-        query =  " SELECT OBR.ID_OBRA, OBR.NOM_OBRA, COUNT(OBR.ID_OBRA) "
-        query += " FROM EMPRESTIMOS"
-        query += " LEFT JOIN LIVROS ON LIVROS.ID_LIVRO = EMPRESTIMOS.COD_LIVRO "
-        query += " LEFT JOIN OBRAS OBR ON LIVROS.COD_OBRA = OBR.ID_OBRA"
-        query += " LEFT JOIN PESSOAS ON PESSOAS.ID_PESSOA = EMPRESTIMOS.COD_PESSOA"
-        query += " WHERE EMPRESTIMOS.DATA_DEVOLUCAO IS NULL "
-        query += " AND PESSOAS.COD_PESSOA_TELEGRAM = " + str(user.id)
-        query += " GROUP BY OBR.ID_OBRA, OBR.NOM_OBRA"
+        # query =  " SELECT OBR.ID_OBRA, OBR.NOM_OBRA, COUNT(OBR.ID_OBRA) "
+        # query += " FROM EMPRESTIMOS"
+        # query += " LEFT JOIN LIVROS ON LIVROS.ID_LIVRO = EMPRESTIMOS.COD_LIVRO "
+        # query += " LEFT JOIN OBRAS OBR ON LIVROS.COD_OBRA = OBR.ID_OBRA"
+        # query += " LEFT JOIN PESSOAS ON PESSOAS.ID_PESSOA = EMPRESTIMOS.COD_PESSOA"
+        # query += " WHERE EMPRESTIMOS.DT_DEVOLUCAO IS NULL "
+        # query += " AND PESSOAS.COD_PESSOA_TELEGRAM = " + str(user.id)
+        # query += " GROUP BY OBR.ID_OBRA, OBR.NOM_OBRA"
 
+        result = BuscaSessao(bot, update)
+        if (len(result) == 0):
+            #novo por aqui
+            start(bot, update)
+            return 
+        if (str(result[0][2]) == ""):
+            Bibliotecas(bot, update)
+            return 
+     
+        query = " call BIBLIOTECA.buscaEmprestimos( "+ str(ID_PESSOA_TELEGRAM) +" ); "
+        print query
         cursor = db.cursor()
         cursor.execute(query)
         print "emprestimos - comando realizado"
-
-        results = cursor.fetchall()
+        for res in cursor.stored_results():
+            results = res.fetchall()
+        print "results[0] = " + str(results[0])
         if (results[0][0] == None):
             msg = "emprestimos - nenhum livro encontrado"
             print msg
@@ -303,16 +333,18 @@ def Emprestimos(bot, update):
 
         msg = "ID - LIVRO (QUANTIDADE) \n"
         for row in results:
-            msg += str(row[0]) + " - " +  row[1] +" (" +str(row[2]) + ")\n"
+            msg += "/" + str(row[0]) + " - " +  row[1] +" (" +str(row[2]) + ")\n"
 
-
+        func = "EMPRESTIMOS"
+        InsereLog(func, ID_PESSOA_TELEGRAM)
+        db.commit()
         bot.send_message(chat_id=update.message.chat_id,
                      text=msg)
     except Exception as e:
         print(e)
         print "emprestimos - deu ruim"
         cursor = db.cursor()
-        cursor.rollback()
+        dc.rollback()
 
 Emprestimos_handler = CommandHandler('emprestimos', Emprestimos)
 dispatcher.add_handler(Emprestimos_handler)
@@ -323,45 +355,38 @@ def Devolver(bot, update):
     try:
         print "Devolver - inicio"
         user = update.message.from_user
+        ID_PESSOA_TELEGRAM = user.id        
         text = update.message.text.replace("/devolver", "")
 
+        result = BuscaSessao(bot, update)
+        if (len(result) == 0):
+            #novo por aqui
+            start(bot, update)
+            return 
+        if (str(result[0][2]) == ""):
+            Bibliotecas(bot, update)
+            return 
 
-
-        query = " SELECT MIN(ID_EMPRESTIMO)"
-        query += " FROM EMPRESTIMOS"
-        query += " inner JOIN LIVROS ON ID_LIVRO = COD_LIVRO AND DATA_DEVOLUCAO IS NULL"
-        query += " INNER JOIN OBRAS ON ID_OBRA = COD_OBRA"
-        query += " INNER join PESSOAS ON ID_PESSOA = COD_PESSOA"
-        query += " WHERE COD_PESSOA_TELEGRAM = " + str(user.id)
-        query += " AND ID_OBRA = " + str(text)
-
+        query = " call BIBLIOTECA.devolveLivro("+ text + ", "+ ID_PESSOA_TELEGRAM +"); "
+        print query
         cursor = db.cursor()
         print "Criei o cursor"
         cursor.execute(query)
-        print "executei a busca"
-
-        results = cursor.fetchall()
+        print "executei "
+        for res in cursor.stored_results():
+            results = cursor.fetchall()
         print "atribui ao cursor"
 
-        if (results[0][0] == None):
-            msg = "emprestimos - emprestimo nao encontrado"
+        if (results[0][0] == 1):
+            msg = "DEVOLVER - emprestimo nao encontrado"
             print msg
             bot.send_message(chat_id=update.message.chat_id,
                         text=msg)
             return
-        print " passei da validacao"
-        for row in results:
-            ID_EMPRESTIMO = row[0]
-
-
-        query =  " update EMPRESTIMOS"
-        query += " set DATA_DEVOLUCAO = now()"
-        query += " WHERE ID_EMPRESTIMO = " + str(ID_EMPRESTIMO)
-
-
-        cursor.execute(query)
-        print "Devolver - comando realizado"
         
+        
+        func = "DEVOLVER"
+        InsereLog(func, ID_PESSOA_TELEGRAM)
         db.commit()
         print "Devolver - commit"
         msg = "Devolvido \n"
@@ -373,7 +398,7 @@ def Devolver(bot, update):
         print(e)
         print "Devolver - deu ruim"
         cursor = db.cursor() 
-        cursor.rollback()
+        db.rollback()
 
 Devolver_handler = CommandHandler('devolver', Devolver)
 dispatcher.add_handler(Devolver_handler)
@@ -402,11 +427,14 @@ def Bibliotecas(bot, update):
                         text=msg)
             return
         print results[0][0]
-        msg = "ID - Biblioteca \n"
+        msg = "Conecte-se a uma biblioteca:\n"
+        msg += "ID - Biblioteca \n"
         for row in results:
             msg += "/" + str(row[0]) + " - " +  row[1] + "\n"
+
         func = "BIBLIOTECAS"
         InsereLog(func, ID_PESSOA_TELEGRAM)
+        db.commit()
 
         bot.send_message(chat_id=update.message.chat_id,
                         text=msg)
@@ -414,25 +442,93 @@ def Bibliotecas(bot, update):
         print(e)
         print "Bibliotecas - deu ruim"
         cursor = db.cursor()
-        cursor.rollback()
+        db.rollback()
 
 Emprestimos_handler = CommandHandler('bibliotecas', Bibliotecas)
 dispatcher.add_handler(Emprestimos_handler)
 
 
+def Conectar(bot, update):
+    try:
+        user = update.message.from_user
+        ID_PESSOA_TELEGRAM = user.id
+        text = update.message.text.replace("/conectar", "")
+        
+        query = " call BIBLIOTECA.criaSessao(" + str(text) + ", " + str(ID_PESSOA_TELEGRAM) + " ); "
+
+        print "query = " + query
+        cursor = db.cursor()
+        print "Criei o cursor"
+        cursor.execute(query)
+        print "Conectar - comando realizado"
+
+
+        func = "CONECTAR"
+        InsereLog(func, ID_PESSOA_TELEGRAM)
+        db.commit()
+
+        start(bot, update)
+    except Exception as e:
+        print(e)
+        print "Conectar - deu ruim"
+        cursor = db.cursor()
+        db.rollback()
+
+Emprestimos_handler = CommandHandler('conectar', Conectar)
+dispatcher.add_handler(Emprestimos_handler)
+
+
+
+
+
 
 def unknown(bot, update):
-    """
-        Placeholder command when the user sends an unknown command.
-    """
-    msg = "Sorry, I don't know what you're asking for."
-    bot.send_message(chat_id=update.message.chat_id,
-                     text=msg)
+    try:
+        """
+            Placeholder command when the user sends an unknown command.
+        """
+        msg = "Sorry, I don't know what you're asking for."
+        log = BuscaLog(update)
+        text = update.message.text.replace("/", "")
+        text = text.replace(" ","")
+        if ( (log == "") or (not text.isnumeric()) ):
+            bot.send_message(chat_id=update.message.chat_id,
+                            text=msg)
+            return
+        
 
+        if (log == "BIBLIOTECAS"):
+            txt = "/conectar " + text
+            update.message.text = txt
+            Conectar(bot,update)
+            return
+        
+        if (log == "LIVROS"):
+            txt = "/pegar " + text
+            update.message.text = txt
+            pegar(bot,update)
+            return
+
+        if (log == "EMPRESTIMOS"):
+            txt = "/pegar " + text
+            update.message.text = txt
+            pegar(bot,update)
+            return
+
+
+        #se nao:
+        bot.send_message(chat_id=update.message.chat_id,
+                            text=msg)
+        return
+    except Exception as e:
+        print(e)
+        print "Unknow - deu ruim"
+        cursor = db.cursor()
+        db.rollback()
 unknown_handler = MessageHandler([Filters.command], unknown)
 dispatcher.add_handler(unknown_handler)
 
-
+##################################################################################
 
 
 def BuscaSessao(bot, update):
@@ -444,22 +540,40 @@ def BuscaSessao(bot, update):
     args = [ID_PESSOA_TELEGRAM]
     cursor.callproc( "BIBLIOTECA.buscaSessao", args)
     #cursor.execute(query)
+    #print '1'
     for res in cursor.stored_results():
-        if res[0][0] == NULL:
-            return [NULL, NULL, NULL]
-        results = res.fetchone()
+        #print 2
+        print "res = " + str(res)
+        return res.fetchall()
+        
 
     return results
 
 
+
 def InsereLog(funcao, ID_PESSOA_TELEGRAM):
+    
     cursor = db.cursor()
 
     query = " call BIBLIOTECA.insereLog( " + str(ID_PESSOA_TELEGRAM) +", '"+ str(funcao) + "' ); "
 
     cursor.execute(query)
-
+    
     return 
 
+def BuscaLog(update):
 
+    user = update.message.from_user
+    ID_PESSOA_TELEGRAM = user.id
+    cursor = db.cursor()
 
+    args = [ID_PESSOA_TELEGRAM]
+    cursor.callproc( "BIBLIOTECA.buscaComando", args)
+
+    for res in cursor.stored_results():
+        print 2
+        BIBLIO = str(res.fetchall()[0][1])
+        print "str(res.fetchall()[0][1]) = " + BIBLIO
+        return BIBLIO
+        
+    return ""

@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `BIBLIOTECA` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `BIBLIOTECA`;
 -- MySQL dump 10.13  Distrib 5.7.20, for Linux (x86_64)
 --
 -- Host: localhost    Database: BIBLIOTECA
@@ -25,7 +23,7 @@ DROP TABLE IF EXISTS `ACESSOS`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ACESSOS` (
-  `ID_ACESSO` int(11) NOT NULL,
+  `ID_ACESSO` int(11) NOT NULL AUTO_INCREMENT,
   `DT_INICIO` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `DT_FIM` datetime DEFAULT NULL,
   `COD_BIBLIOTECA` int(11) NOT NULL,
@@ -35,7 +33,7 @@ CREATE TABLE `ACESSOS` (
   KEY `fk_ACESSOS_BIBLIOTECA_idx` (`COD_BIBLIOTECA`),
   CONSTRAINT `fk_ACESSOS_BIBLIOTECA` FOREIGN KEY (`COD_BIBLIOTECA`) REFERENCES `BIBLIOTECAS` (`ID_BIBLIOTECA`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_ACESSOS_PESSOA` FOREIGN KEY (`COD_PESSOA`) REFERENCES `PESSOAS` (`ID_PESSOA`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -89,7 +87,22 @@ CREATE TABLE `BIBLIOTECAS` (
   PRIMARY KEY (`ID_BIBLIOTECA`),
   KEY `fk_new_table_1_idx` (`COD_TB`),
   CONSTRAINT `fk_BIBLIOTECA_TB` FOREIGN KEY (`COD_TB`) REFERENCES `TIPOS_BIBLIOTECA` (`ID_TB`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `COMANDOS`
+--
+
+DROP TABLE IF EXISTS `COMANDOS`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `COMANDOS` (
+  `ID_COMANDO` int(11) NOT NULL AUTO_INCREMENT,
+  `NM_COMANDO` varchar(45) NOT NULL,
+  `DS_COMANDO` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`ID_COMANDO`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -150,6 +163,26 @@ CREATE TABLE `LIVROS` (
   CONSTRAINT `fk_LIVROS_BIBLIOTECA` FOREIGN KEY (`COD_BIBLIOTECA`) REFERENCES `BIBLIOTECAS` (`ID_BIBLIOTECA`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_LIVROS_OBRA` FOREIGN KEY (`COD_OBRA`) REFERENCES `OBRAS` (`ID_OBRA`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `LOG_COMANDOS`
+--
+
+DROP TABLE IF EXISTS `LOG_COMANDOS`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `LOG_COMANDOS` (
+  `ID_LC` int(11) NOT NULL AUTO_INCREMENT,
+  `CD_PESSOA` int(11) DEFAULT NULL,
+  `CD_COMANDO` int(11) DEFAULT NULL,
+  `DT_LC` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ID_LC`),
+  KEY `fk_LOG_COMANDOS_PESSOA_idx` (`CD_PESSOA`),
+  KEY `fk_LOG_COMANDOS_COMANDO_idx` (`CD_COMANDO`),
+  CONSTRAINT `fk_LOG_COMANDOS_COMANDO` FOREIGN KEY (`CD_COMANDO`) REFERENCES `COMANDOS` (`ID_COMANDO`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_LOG_COMANDOS_PESSOA` FOREIGN KEY (`CD_PESSOA`) REFERENCES `PESSOAS` (`ID_PESSOA`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -230,9 +263,9 @@ CREATE TABLE `SESSOES` (
   `DT_FIM` datetime DEFAULT NULL,
   `COD_ACESSO` int(11) NOT NULL,
   PRIMARY KEY (`ID_SESSAO`),
-  KEY `fk_SESSOES_ACESSO_idx` (`COD_ACESSO`),
-  CONSTRAINT `fk_SESSOES_ACESSO` FOREIGN KEY (`COD_ACESSO`) REFERENCES `ACESSOS` (`ID_ACESSO`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  KEY `fk_SESSOES_ACESSOS_idx` (`COD_ACESSO`),
+  CONSTRAINT `fk_SESSOES_ACESSOS` FOREIGN KEY (`COD_ACESSO`) REFERENCES `ACESSOS` (`ID_ACESSO`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -455,6 +488,30 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `buscaComando` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buscaComando`(varCodPessoaTelegram int)
+select ID_COMANDO
+    FROM LOG_COMANDOS
+    INNER JOIN COMANDOS ON (ID_COMANDO = CD_COMANDO)
+    INNER JOIN PESSOAS ON (ID_PESSOA = CD_PESSOA)
+    WHERE COD_PESSOA_TELEGRAM = varCodPessoaTelegram
+    AND TIMESTAMPDIFF(MINUTE , DT_LC , NOW()) < 2
+    order by DT_LC desc
+    limit 1 ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `buscaEmprestimos` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -491,15 +548,19 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `buscaLivros`(varIdBiblioteca int)
-select ID_OBRA,
-			NOM_OBRA
-	FROM OBRAS OBR
-	inner JOIN LIVROS LIV ON (LIV.COD_OBRA = OBR.ID_OBRA )
-	INNER JOIN BIBLIOTECAS BIB ON (BIB.ID_BIBLIOTECA = LIV.COD_BIBLIOTECA)
-	LEFT JOIN EMPRESTIMOS EMP ON (EMP.COD_LIVRO = LIV.ID_LIVRO)
-	WHERE ID_BIBLIOTECA = varIdBiblioteca
-	and EMP.ID_EMPRESTIMO IS NULL ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `buscaLivros`(varIdSessao int)
+select ID_OBRA AS 'ID',
+			NOM_OBRA AS 'TITULO',
+            COUNT(*) AS 'QUANTIDADE'
+	FROM SESSOES
+    INNER JOIN ACESSOS ON ( ACESSOS.ID_ACESSO = SESSOES.COD_ACESSO )
+	INNER JOIN BIBLIOTECAS ON (BIBLIOTECAS.ID_BIBLIOTECA = ACESSOS.COD_BIBLIOTECA)
+	inner JOIN LIVROS ON (LIVROS.COD_BIBLIOTECA = BIBLIOTECAS.ID_BIBLIOTECA )
+    INNER JOIN OBRAS ON (OBRAS.ID_OBRA = LIVROS.COD_OBRA)
+	LEFT JOIN EMPRESTIMOS ON (EMPRESTIMOS.COD_LIVRO = LIVROS.ID_LIVRO)
+	WHERE ID_SESSAO = varIdSessao
+	and EMPRESTIMOS.ID_EMPRESTIMO IS NULL
+    GROUP BY ID_OBRA, NOM_OBRA ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
@@ -564,17 +625,17 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `buscaSessao`(varCodPessoaTelegram int)
-select  ID_PESSOA,
-			ID_ACESSO,
-			ID_SESSAO,
-            ID_BIBLIOTECA
+select ID_PESSOA AS 'ID_PESSOA',
+			MAX(ID_SESSAO) AS 'ID_SESSAO',
+            MAX(ID_BIBLIOTECA) AS 'ID_BIBLIOTECA'
 	FROM PESSOAS PES
-    LEFT JOIN ACESSOS ACE ON (ACE.COD_PESSOA = PES.ID_PESSOA)
+    LEFT JOIN ACESSOS ACE ON (ACE.COD_PESSOA = PES.ID_PESSOA )
     LEFT JOIN BIBLIOTECAS BIB ON (BIB.ID_BIBLIOTECA = ACE.COD_BIBLIOTECA)
-    LEFT JOIN SESSOES SE ON (SE.COD_ACESSO = ACE.ID_ACESSO)
+    LEFT JOIN SESSOES SE ON (SE.COD_ACESSO = ACE.ID_ACESSO )
     WHERE COD_PESSOA_TELEGRAM = varCodPessoaTelegram
     AND ACE.DT_FIM IS NULL
-    AND SE.DT_FIM IS NULL ;;
+    AND SE.DT_FIM IS NULL
+	GROUP BY ID_PESSOA ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
@@ -657,6 +718,29 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `insereLog` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insereLog`(varIdPesTel int, varComando varchar(45))
+insert into LOG_COMANDOS
+    (CD_COMANDO,CD_PESSOA)
+    VALUES
+    (
+    (SELECT ID_COMANDO FROM COMANDOS WHERE NM_COMANDO = varComando),
+    (SELECT ID_PESSOA FROM PESSOAS WHERE COD_PESSOA_TELEGRAM = varIdPesTel)
+    ) ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `inserePessoa` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -669,8 +753,7 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `inserePessoa`(varCodPesTel int, 
 									varUsrPes varchar(255), 
-                                    varNomPes varchar(255), 
-                                    varTelPes varchar(255) )
+                                    varNomPes varchar(255))
 INSERT INTO `BIBLIOTECA`.`PESSOAS`
 (`NOM_PESSOA`,
 `TEL_PESSOA`,
@@ -678,7 +761,7 @@ INSERT INTO `BIBLIOTECA`.`PESSOAS`
 `USR_PESSOA`)
 VALUES
 (varNomPes,
-varTelPes,
+NULL,
 varCodPesTel,
 varUsrPes) ;;
 DELIMITER ;
@@ -761,4 +844,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-29 23:46:48
+-- Dump completed on 2017-12-06 23:41:46
