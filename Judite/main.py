@@ -62,18 +62,18 @@ dispatcher.add_handler(start_handler)
 
 def support(bot, update):
     try:
-        print "Execute inicio"
+        print ("Execute inicio")
         user = update.message.from_user
         text = update.message.text.replace("/execute", "")
 
         cursor = db.cursor()
 
         cursor.execute("insert into LIVROS (COD_OBRA) VALUES (2), (3), (3), (5)")
-        print "comando realizado"
+        print ("comando realizado")
         db.commit()
     except Exception as e:
         print(e)
-        print "pegar - deu ruim"
+        print ("pegar - deu ruim")
         cursor = db.cursor()
         cursor.rollback()
 
@@ -87,9 +87,9 @@ dispatcher.add_handler(support_handler)
 def livros(bot, update):
     try:
         
-        print "livros - entrei"
+        print ("livros - entrei")
         cursor = db.cursor()
-        print "livros - criei o cursor"
+        print ("livros - criei o cursor")
         
         query =  " select ID_OBRA, NOM_OBRA, count(NOM_OBRA)  " 
         query += " From LIVROS LIV "
@@ -101,13 +101,13 @@ def livros(bot, update):
 
 
         cursor.execute(query)
-        print "livros - executei a consulta"
+        print ("livros - executei a consulta")
         
         msg = "ID - LIVRO (QUANTIDADE) \n"
         results = cursor.fetchall()
         if (len(results) == 0):
             msg = "tem nada nessa biblioteca nao parceiro"
-            print msg
+            print (msg)
             bot.send_message(chat_id=update.message.chat_id,
                             text=msg)
             return
@@ -123,10 +123,10 @@ def livros(bot, update):
         
         bot.send_message(chat_id=update.message.chat_id,
                         text=msg)
-        print "livros - retornei a mensagem"        
+        print ("livros - retornei a mensagem"    )    
     except Exception as e:
         print(e)
-        print "livros - deu ruim"
+        print ("livros - deu ruim")
         cursor = db.cursor()
         cursor.rollback()
 
@@ -146,44 +146,44 @@ def pegar(bot, update):
         text = update.message.text.replace("/pegar", "")
         text = text.strip()
 
-        print "id usuario: " + str(user.id)
-        print "usuario: " + user.first_name + ' ' + user.last_name
-        print "mensagem: " + text 
-        print "PEGAR - entrei"
+        print ("id usuario: " + str(user.id))
+        print ("usuario: " + user.first_name + ' ' + user.last_name)
+        print ("mensagem: " + text )
+        print ("PEGAR - entrei")
         cursor = db.cursor()
-        print "PEGAR - criei o cursor"
+        print ("PEGAR - criei o cursor")
 
         query =  ' select ID_PESSOA'
         query += ' FROM PESSOAS'
         query += ' WHERE COD_PESSOA_TELEGRAM = ' + str(user.id)
 
         cursor.execute(query)
-        print "busquei a pessoa"
+        print ("busquei a pessoa")
         results = cursor.fetchall()
 
         if (len(results) == 0):
-            print "novo por aqui"
+            print ("novo por aqui")
             #query =  " start transaction; "
             query = " insert into PESSOAS"
             query += " (NOM_PESSOA, COD_PESSOA_TELEGRAM, USR_PESSOA)"
             query += " VALUES ( '" + user.first_name + " " + user.last_name + "'"
             query += " , "+ str(user.id)
             query += " , '"+ user.username +"')"
-            print "/ " + query + " /"
+            print ("/ " + query + " /")
             cursor.execute(query)
-            print "inseri pessoa"
+            print ("inseri pessoa")
 
             query =  ' select ID_PESSOA'
             query += ' FROM PESSOAS'
             query += ' WHERE COD_PESSOA_TELEGRAM = ' + str(user.id)
 
             cursor.execute(query)
-            print "busquei a pessoa dnv"
+            print ("busquei a pessoa dnv")
             results = cursor.fetchall()
 
         for row in results:
             ID_PESSOA = row[0] 
-            print "ID_PESSOA: " + str(ID_PESSOA)
+            print ("ID_PESSOA: " + str(ID_PESSOA))
         
         query =  ' select MIN(LIV.ID_LIVRO)'
         query += ' From LIVROS LIV'
@@ -194,21 +194,21 @@ def pegar(bot, update):
         query += ' '
 
         cursor.execute(query)
-        print "busquei o livro "
+        print ("busquei o livro ")
         results = cursor.fetchall()
-        print "len(results) = " + str(len(results))
-        print "str(results[0][0]) = " + str(results[0][0])
-        print "bool = " + str(results[0][0] == None)
+        print ("len(results) = " + str(len(results)))
+        print ("str(results[0][0]) = " + str(results[0][0]))
+        print ("bool = " + str(results[0][0] == None))
         if (results[0][0] == None):
             msg = "livro nao disponivel"
-            print msg
+            print (msg)
             bot.send_message(chat_id=update.message.chat_id,
                             text=msg)            
             return
         
         for row in results:
             ID_LIVRO = row[0] 
-            print "ID_LIVRO: " + str(ID_LIVRO)
+            print ("ID_LIVRO: " + str(ID_LIVRO))
 
         query =  " "
         query += " INSERT INTO EMPRESTIMOS"
@@ -217,25 +217,25 @@ def pegar(bot, update):
         query += " (" + str(ID_LIVRO) + ", " + str(ID_PESSOA) + ", NOW(), '01')"
 
         cursor.execute(query)
-        print "Inseri o emprestimo. "
+        print ("Inseri o emprestimo. ")
 
         msg = "Ok, bons estudos.\n\n"        
         
         db.commit()
         
-        print "commit"
+        print ("commit")
         bot.send_message(chat_id=update.message.chat_id,
                         text=msg)
-        print "pegar - retornei a mensagem"        
+        print ("pegar - retornei a mensagem"   )     
     except Exception as e:
         print(e)
-        print "pegar - deu ruim"
+        print ("pegar - deu ruim")
         cursor = db.cursor()
         cursor.rollback()
     finally:
         # cursor.commit()
         # cursor.close()
-         print ""
+         print ("")
 pegar_handler = CommandHandler('pegar', pegar)
 dispatcher.add_handler(pegar_handler)
 
@@ -244,12 +244,12 @@ dispatcher.add_handler(pegar_handler)
 
 def execute(bot, update):
     try:
-        print "Execute inicio"
+        print ("Execute inicio")
         user = update.message.from_user
         text = update.message.text.replace("/execute", "")
 
         cursor = db.cursor()
-        print "comando realizado"
+        print ("comando realizado")
         cursor.execute(text)
         db.commit()
         msg = "FIM"
@@ -257,7 +257,7 @@ def execute(bot, update):
                      text=msg)
     except Exception as e:
         print(e)
-        print "pegar - deu ruim"
+        print ("pegar - deu ruim")
         cursor.rollback()
 
 execute_handler = CommandHandler('execute', execute)
@@ -266,7 +266,7 @@ dispatcher.add_handler(execute_handler)
 
 def Emprestimos(bot, update):
     try:
-        print "emprestimos - inicio"
+        print ("emprestimos - inicio")
         user = update.message.from_user
         #text = update.message.text.replace("/execute", "")
 
@@ -281,12 +281,12 @@ def Emprestimos(bot, update):
 
         cursor = db.cursor()
         cursor.execute(query)
-        print "emprestimos - comando realizado"
+        print ("emprestimos - comando realizado")
 
         results = cursor.fetchall()
         if (results[0][0] == None):
             msg = "emprestimos - nenhum livro encontrado"
-            print msg
+            print (msg)
             bot.send_message(chat_id=update.message.chat_id,
                      text=msg)
             return
@@ -300,7 +300,7 @@ def Emprestimos(bot, update):
                      text=msg)
     except Exception as e:
         print(e)
-        print "emprestimos - deu ruim"
+        print ("emprestimos - deu ruim")
         cursor = db.cursor()
         cursor.rollback()
 
@@ -311,7 +311,7 @@ dispatcher.add_handler(Emprestimos_handler)
 
 def Devolver(bot, update):
     try:
-        print "Devolver - inicio"
+        print ("Devolver - inicio")
         user = update.message.from_user
         text = update.message.text.replace("/devolver", "")
 
@@ -326,20 +326,20 @@ def Devolver(bot, update):
         query += " AND ID_OBRA = " + str(text)
 
         cursor = db.cursor()
-        print "Criei o cursor"
+        print ("Criei o cursor")
         cursor.execute(query)
-        print "executei a busca"
+        print ("executei a busca")
 
         results = cursor.fetchall()
-        print "atribui ao cursor"
+        print ("atribui ao cursor")
 
         if (results[0][0] == None):
             msg = "emprestimos - emprestimo nao encontrado"
-            print msg
+            print (msg)
             bot.send_message(chat_id=update.message.chat_id,
                         text=msg)
             return
-        print " passei da validacao"
+        print (" passei da validacao")
         for row in results:
             ID_EMPRESTIMO = row[0]
 
@@ -350,10 +350,10 @@ def Devolver(bot, update):
 
 
         cursor.execute(query)
-        print "Devolver - comando realizado"
+        print ("Devolver - comando realizado")
         
         db.commit()
-        print "Devolver - commit"
+        print ("Devolver - commit")
         msg = "Devolvido \n"
         
         bot.send_message(chat_id=update.message.chat_id,
@@ -361,7 +361,7 @@ def Devolver(bot, update):
 
     except Exception as e:
         print(e)
-        print "Devolver - deu ruim"
+        print ("Devolver - deu ruim")
         cursor = db.cursor() 
         cursor.rollback()
 
