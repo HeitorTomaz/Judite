@@ -289,7 +289,7 @@ def Emprestimos(bot, update):
         print ("emprestimos - comando realizado")
 
         results = cursor.fetchall()
-        if (results[0][0] == None):
+        if (len(results) == 0):
             msg = "emprestimos - nenhum livro encontrado"
             print (msg)
             bot.send_message(chat_id=update.message.chat_id,
