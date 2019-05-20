@@ -145,7 +145,7 @@ def pegar(bot, update):
         user = update.message.from_user
         text = update.message.text.replace("/pegar", "")
         text = text.strip()
-
+        #print (user)
         print ("id usuario: " + str(user.id))
         print ("usuario: " + user.first_name + ' ' + user.last_name)
         print ("mensagem: " + text )
@@ -171,9 +171,9 @@ def pegar(bot, update):
             #query =  " start transaction; "
             query = " insert into PESSOAS"
             query += " (NOM_PESSOA, COD_PESSOA_TELEGRAM, USR_PESSOA)"
-            query += " VALUES ( '" + user.first_name + " " + user.last_name + "'"
+            query += " VALUES ( '" + str(user.first_name) + " " + str(user.last_name) + "'"
             query += " , "+ str(user.id)
-            query += " , '"+ user.username +"')"
+            query += " , '"+ str(user.username) +"')"
             print ("/ " + query + " /")
             cursor.execute(query)
             print ("inseri pessoa")
@@ -387,8 +387,16 @@ def unknown(bot, update):
         Placeholder command when the user sends an unknown command.
     """
     msg = "Sorry, I don't know what you're asking for."
+    main_menu_keyboard = [[telegram.KeyboardButton('/livros')]#,
+                          ,[telegram.KeyboardButton('/emprestimos')]
+                          ,[telegram.KeyboardButton('/start')]]
+    reply_kb_markup = telegram.ReplyKeyboardMarkup(main_menu_keyboard,
+                                                   resize_keyboard=True,
+                                                   one_time_keyboard=True)
+
     bot.send_message(chat_id=update.message.chat_id,
-                     text=msg)
+                     text=msg,
+                     reply_markup=reply_kb_markup)
 
 unknown_handler = MessageHandler([Filters.command], unknown)
 dispatcher.add_handler(unknown_handler)
