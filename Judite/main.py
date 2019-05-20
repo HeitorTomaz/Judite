@@ -42,8 +42,8 @@ def start(bot, update):
 
     # Commands menu
     main_menu_keyboard = [[telegram.KeyboardButton('/livros')]#,
-                          #,telegram.KeyboardButton('/start')],
-                          ,[telegram.KeyboardButton('/emprestimos')]]
+                          ,[telegram.KeyboardButton('/emprestimos')]
+                          ,[telegram.KeyboardButton('/start')]]
     reply_kb_markup = telegram.ReplyKeyboardMarkup(main_menu_keyboard,
                                                    resize_keyboard=True,
                                                    one_time_keyboard=True)
@@ -152,6 +152,11 @@ def pegar(bot, update):
         print ("PEGAR - entrei")
         cursor = db.cursor()
         print ("PEGAR - criei o cursor")
+
+        if (text.strip()== "" or not text.strip().isdigit()):
+            bot.send_message(chat_id=update.message.chat_id,
+                        text="Preenche direito aí brother")
+            return
 
         query =  ' select ID_PESSOA'
         query += ' FROM PESSOAS'
@@ -316,6 +321,10 @@ def Devolver(bot, update):
         text = update.message.text.replace("/devolver", "")
 
 
+        if (text.strip()== "" or not text.strip().isdigit()):
+            bot.send_message(chat_id=update.message.chat_id,
+                        text="Preenche direito aí brother")
+            return
 
         query = " SELECT MIN(ID_EMPRESTIMO)"
         query += " FROM EMPRESTIMOS"
