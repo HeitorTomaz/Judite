@@ -22,6 +22,10 @@ db = mysql.connector.connect(user=config['DB']['user'],
                             database=config['DB']['db'])
 
 
+
+
+
+
 def start(bot, update):
     """
         Shows an welcome message and help info about the available commands.
@@ -59,21 +63,24 @@ dispatcher.add_handler(start_handler)
 
 
 
-
+##  Ninguém viu isso aqui
 def support(bot, update):
     try:
         print ("Execute inicio")
         user = update.message.from_user
-        text = update.message.text.replace("/execute", "")
+        text = update.message.text.replace("/support", "")
+        text = text.strip()
 
         cursor = db.cursor()
 
-        cursor.execute("insert into LIVROS (COD_OBRA) VALUES (2), (3), (3), (5)")
+        cursor.execute("insert into LIVROS (COD_OBRA) VALUES ("+str(text)+")")
         print ("comando realizado")
         db.commit()
+        bot.send_message(chat_id=update.message.chat_id,
+            text="Foi")
     except Exception as e:
         print(e)
-        print ("pegar - deu ruim")
+        print ("support - deu ruim")
         cursor = db.cursor()
         cursor.rollback()
 
@@ -81,7 +88,31 @@ support_handler = CommandHandler('support', support)
 dispatcher.add_handler(support_handler)
 
 
+def insere(bot, update):
+    try:
+        print ("Execute inicio")
+        user = update.message.from_user
+        text = update.message.text.replace("/insere", "")
+        text = text.strip()
 
+        cursor = db.cursor()
+
+        cursor.execute("insert into OBRAS (NOM_OBRA) VALUES ('" + str(text) + "')")
+        cursor.execute("insert into LIVROS (COD_OBRA) select ID_OBRA from OBRAS where NOM_OBRA = '" + str(text) + "'")
+        print ("comando realizado")
+        db.commit()
+        bot.send_message(chat_id=update.message.chat_id,
+            text="Foi")
+    except Exception as e:
+        print(e)
+        print ("insere - deu ruim")
+        cursor = db.cursor()
+        cursor.rollback()
+
+insere_handler = CommandHandler('insere', insere)
+dispatcher.add_handler(insere_handler)
+
+##
 
 
 def livros(bot, update):
