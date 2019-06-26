@@ -60,6 +60,8 @@ def start(bot, update):
         msg += "/Bibliotecas - Exibe todas as bibliotecas\n"
         msg += "/Conectar [id] - Acessa uma biblioteca\n"
         msg += "/Livros - Exibe os livros disponiveis\n"
+        msg += "/Areas - Exibe as areas dos livros presentes\n"
+        msg += "/LivrosArea [id] - Exibe os livros disponiveis em uma area\n"
         msg += "/Pegar [id] - Marca um livro como estando com voce\n"
         msg += "/Emprestimos - Exibe os seus emprestimos\n"
         msg += "/Devolver [id] - devolve um livro que estava com voce\n"
@@ -67,6 +69,7 @@ def start(bot, update):
         # Commands menu
         main_menu_keyboard = [[telegram.KeyboardButton('/Bibliotecas')]
                             ,[telegram.KeyboardButton('/Livros')]
+                            ,[telegram.KeyboardButton('/Areas')]
                             ,[telegram.KeyboardButton('/Emprestimos')]
                             ,[telegram.KeyboardButton('/start')]]
         reply_kb_markup = telegram.ReplyKeyboardMarkup(main_menu_keyboard,
@@ -185,6 +188,160 @@ def livros(bot, update):
 livros_handler = CommandHandler('livros', livros)
 dispatcher.add_handler(livros_handler)
 
+
+
+
+def areas(bot, update):
+    try:
+        user = update.message.from_user
+        ID_PESSOA_TELEGRAM = user.id
+        print( "areas - entrei")
+        cursor = db.cursor()
+        print( "areas - criei o cursor")
+        
+        # query =  " select ID_OBRA, NOM_OBRA, count(NOM_OBRA)  " 
+        # query += " From LIVROS LIV "
+        # query += " INNER JOIN OBRAS OBR ON OBR.ID_OBRA = LIV.COD_OBRA "
+        # query += " left join EMPRESTIMOS EMP ON EMP.COD_LIVRO = LIV.ID_LIVRO AND DATA_DEVOLUCAO IS NULL "
+        # query += " where ID_EMPRESTIMO IS NULL "
+        # query += " GROUP BY ID_OBRA, NOM_OBRA "
+        # query += " order by NOM_OBRA "
+
+        result = BuscaSessao(bot, update)
+        print( 4)
+        print( "len(result) == " + str(len(result)))
+
+        if (len(result) == 0):
+            #novo por aqui
+            start(bot, update)
+            return 
+        if (str(result[0][2]) == ""):
+            Bibliotecas(bot, update)
+            return 
+        
+
+        args = [result[0][2]]
+
+        cursor.callproc( "biblioteca.buscaAreas", args)
+        print( "areas - executei a consulta")
+        for res in cursor.stored_results():
+            print( 2)
+            results = res.fetchall()
+
+        print( " result[0] = " + str(result[0]))
+            
+        msg = "ID - AREA \n"
+        if (len(results) == 0):
+            msg = "tem nada nessa biblioteca nao parceiro"
+            print( msg)
+            bot.send_message(chat_id=update.message.chat_id,
+                            text=msg)
+            return
+        for row in results:
+            msg += "/" + str(row[0]) + " - " + row[1] +"\n"
+
+        
+        func = "AREAS"
+        InsereLog(func, ID_PESSOA_TELEGRAM)
+        db.commit()
+        
+        bot.send_message(chat_id=update.message.chat_id,
+                        text=msg)
+        print( "areas - retornei a mensagem"        )
+    except Exception as e:
+        print(e)
+        print( "areas - deu ruim")
+        cursor = db.cursor()
+        db.rollback()
+
+    # finally:
+    #     cursor.close()
+
+areas_handler = CommandHandler('areas', areas)
+dispatcher.add_handler(areas_handler)
+
+
+
+def livrosArea(bot, update):
+    try:
+        user = update.message.from_user
+        ID_PESSOA_TELEGRAM = user.id
+        print( "livrosArea - entrei")
+
+        text = update.message.text.lower().replace("/livrosarea", "")
+        text = text.replace("/", "").replace(" ", "")
+        text = text.strip()
+
+        if (text == ""):
+            msg = "Escolha uma area\nex: /LivrosArea 1"
+            print( msg)
+            bot.send_message(chat_id=update.message.chat_id,
+                            text=msg)
+            return
+
+        cursor = db.cursor()
+        print( "livrosArea - criei o cursor")
+        
+        # query =  " select ID_OBRA, NOM_OBRA, count(NOM_OBRA)  " 
+        # query += " From LIVROS LIV "
+        # query += " INNER JOIN OBRAS OBR ON OBR.ID_OBRA = LIV.COD_OBRA "
+        # query += " left join EMPRESTIMOS EMP ON EMP.COD_LIVRO = LIV.ID_LIVRO AND DATA_DEVOLUCAO IS NULL "
+        # query += " where ID_EMPRESTIMO IS NULL "
+        # query += " GROUP BY ID_OBRA, NOM_OBRA "
+        # query += " order by NOM_OBRA "
+
+        result = BuscaSessao(bot, update)
+        print( 4)
+        print( "len(result) == " + str(len(result)))
+
+        if (len(result) == 0):
+            #novo por aqui
+            start(bot, update)
+            return 
+        if (str(result[0][2]) == ""):
+            Bibliotecas(bot, update)
+            return 
+        
+
+        args = [result[0][2], int(text)]
+
+        cursor.callproc( "biblioteca.buscaLivrosArea", args)
+        print( "livrosArea - executei a consulta")
+        for res in cursor.stored_results():
+            print( 2)
+            results = res.fetchall()
+
+        print( " result[0] = " + str(result[0]))
+            
+        msg = "ID - LIVRO (QUANTIDADE) \n"
+        if (len(results) == 0):
+            msg = "tem nada nessa biblioteca nao parceiro"
+            print( msg)
+            bot.send_message(chat_id=update.message.chat_id,
+                            text=msg)
+            return
+        for row in results:
+            msg += "/" + str(row[0]) + " - " + row[1] + " ("+str(row[2]) +")\n"
+
+        
+        func = "LIVROS_AREA"
+        InsereLog(func, ID_PESSOA_TELEGRAM)
+        db.commit()
+        
+        bot.send_message(chat_id=update.message.chat_id,
+                        text=msg)
+        print( "livrosArea - retornei a mensagem"        )
+    except Exception as e:
+        print(e)
+        print( "livrosArea - deu ruim")
+        cursor = db.cursor()
+        db.rollback()
+
+    # finally:
+    #     cursor.close()
+
+livrosArea_handler = CommandHandler('livrosArea', livrosArea)
+dispatcher.add_handler(livrosArea_handler)
 
 
 
@@ -342,9 +499,9 @@ def Emprestimos(bot, update):
                      text=msg)
             return
 
-        msg = "Empréstimos em todas as bibliotecas:\nID - LIVRO (QUANTIDADE) \n"
+        msg = "Empréstimos em todas as bibliotecas:\nID - LIVRO [BIBLIOTECA]\n"
         for row in results:
-            msg += "/" + str(row[0]) + " - " +  row[1] +"\n"
+            msg += "/" + str(row[0]) + " - " +  row[1] + " ["+ row[2] +"]\n"
 
         func = "EMPRESTIMOS"
         InsereLog(func, ID_PESSOA_TELEGRAM)
@@ -537,7 +694,7 @@ def unknown(bot, update):
             Conectar(bot,update)
             return
         
-        if (log == "LIVROS"):
+        if (log == "LIVROS" or log == "LIVROS_AREA"):
             txt = "/pegar " + text
             update.message.text = txt
             pegar(bot,update)
@@ -547,6 +704,13 @@ def unknown(bot, update):
             txt = "/devolver " + text
             update.message.text = txt
             Devolver(bot,update)
+            return
+
+
+        if (log == "AREAS"):
+            txt = "/livrosArea " + text
+            update.message.text = txt
+            livrosArea(bot,update)
             return
 
 
