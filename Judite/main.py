@@ -30,27 +30,29 @@ def start(bot, update):
         me = bot.get_me()
         user = update.message.from_user
         ID_PESSOA_TELEGRAM = user.id
-        print "start\n"
+        print( "start\n")
         msg = "Ola, eu sou Judite, a bibliotecaria.\n"
         
         
         result = BuscaSessao(bot, update)
-        print "len(result) == " + str(len(result))
+        print( "len(result) == " + str(len(result)))
 
         if (len(result) == 0):
-            print "novo por aqui"
+            print( "novo por aqui")
             cursor = db.cursor()
             nome = user.first_name + " " + user.last_name
-            print "nome = " + nome
-            query = " call BIBLIOTECA.inserePessoa( " + str(user.id) +", '" + user.username +"', '" + nome + "'); "
-            print query
+            print( "nome = " + nome)
+            query = " call biblioteca.inserePessoa( " + str(user.id) +", '" + user.username +"', '" + nome + "'); "
+            print( query)
             cursor.execute(query)
 
             db.commit()
-            print "inseri pessoa"
+            print( "inseri pessoa")
         else:
-            if str(result[0][3]) != "":
-                msg += "Conectado a biblioteca: " + str(result[0][3]) + "\n\n"
+            print("result[0]")
+            print(result[0])
+            if str(result[0][2]) != None and str(result[0][2]) != "":
+                msg += "Conectado a biblioteca: " + str(result[0][2]) + "\n\n"
             
 
 
@@ -80,7 +82,7 @@ def start(bot, update):
                         reply_markup=reply_kb_markup)
     except Exception as e:
         print(e)
-        print "start - deu ruim"
+        print( "start - deu ruim")
         cursor = db.cursor()
         db.rollback()
 
@@ -92,18 +94,18 @@ dispatcher.add_handler(start_handler)
 
 def support(bot, update):
     try:
-        print "Execute inicio"
+        print( "Execute inicio")
         user = update.message.from_user
         text = update.message.text.replace("/execute", "")
 
         cursor = db.cursor()
 
         cursor.execute("insert into LIVROS (COD_OBRA) VALUES (2), (3), (3), (5)")
-        print "comando realizado"
+        print( "comando realizado")
         db.commit()
     except Exception as e:
         print(e)
-        print "pegar - deu ruim"
+        print( "pegar - deu ruim")
         cursor = db.cursor()
         db.rollback()
 
@@ -118,9 +120,9 @@ def livros(bot, update):
     try:
         user = update.message.from_user
         ID_PESSOA_TELEGRAM = user.id
-        print "livros - entrei"
+        print( "livros - entrei")
         cursor = db.cursor()
-        print "livros - criei o cursor"
+        print( "livros - criei o cursor")
         
         # query =  " select ID_OBRA, NOM_OBRA, count(NOM_OBRA)  " 
         # query += " From LIVROS LIV "
@@ -131,8 +133,8 @@ def livros(bot, update):
         # query += " order by NOM_OBRA "
 
         result = BuscaSessao(bot, update)
-        print 4
-        print "len(result) == " + str(len(result))
+        print( 4)
+        print( "len(result) == " + str(len(result)))
 
         if (len(result) == 0):
             #novo por aqui
@@ -145,18 +147,18 @@ def livros(bot, update):
 
         args = [result[0][1]]
 
-        cursor.callproc( "BIBLIOTECA.buscaLivros", args)
-        print "livros - executei a consulta"
+        cursor.callproc( "biblioteca.buscaLivros", args)
+        print( "livros - executei a consulta")
         for res in cursor.stored_results():
-            print 2
+            print( 2)
             results = res.fetchall()
 
-        print " result[0] = " + str(result[0])
+        print( " result[0] = " + str(result[0]))
             
         msg = "ID - LIVRO (QUANTIDADE) \n"
         if (len(results) == 0):
             msg = "tem nada nessa biblioteca nao parceiro"
-            print msg
+            print( msg)
             bot.send_message(chat_id=update.message.chat_id,
                             text=msg)
             return
@@ -170,10 +172,10 @@ def livros(bot, update):
         
         bot.send_message(chat_id=update.message.chat_id,
                         text=msg)
-        print "livros - retornei a mensagem"        
+        print( "livros - retornei a mensagem"        )
     except Exception as e:
         print(e)
-        print "livros - deu ruim"
+        print( "livros - deu ruim")
         cursor = db.cursor()
         db.rollback()
 
@@ -191,20 +193,27 @@ def pegar(bot, update):
         
         user = update.message.from_user
         ID_PESSOA_TELEGRAM = user.id
-        text = update.message.text.replace("/pegar", "")
+        text = update.message.text.lower().replace("/pegar", "")
         text = text.replace(" ", "")
         text = text.strip()
 
-        print "id usuario: " + str(user.id)
-        print "usuario: " + user.first_name + ' ' + user.last_name
-        print "mensagem: " + text 
-        print "PEGAR - entrei"
+        print( "id usuario: " + str(user.id))
+        print( "usuario: " + user.first_name + ' ' + user.last_name)
+        print( "mensagem: " + text )
+        print( "PEGAR - entrei")
+
+        if (text == ""):
+            msg = "Escolha um livro\nex: /Pegar 1"
+            print( msg)
+            bot.send_message(chat_id=update.message.chat_id,
+                            text=msg)
+            return
+
         cursor = db.cursor()
-        print "PEGAR - criei o cursor"
+        print( "PEGAR - criei o cursor")
 
         result = BuscaSessao(bot, update)
-        print 4
-        print "len(result) == " + str(len(result))
+        print( "len(result) == " + str(len(result)))
 
         if (len(result) == 0):
             #novo por aqui
@@ -226,23 +235,23 @@ def pegar(bot, update):
         query += ' '
 
         cursor.execute(query)
-        print "busquei o livro "
+        print( "busquei o livro ")
         results = cursor.fetchall()
-        print "len(results) = " + str(len(results))
-        print "str(results[0][0]) = " + str(results[0][0])
-        print "bool = " + str(results[0][0] == None)
-        if (results[0][0] == None):
+        print( "len(results) = " + str(len(results)))
+        print( "str(results[0][0]) = " + str(results[0][0]))
+        print( "bool = " + str(results[0][0] == None))
+        if (len(results) == 0):
             msg = "livro nao disponivel"
-            print msg
+            print( msg)
             bot.send_message(chat_id=update.message.chat_id,
                             text=msg)            
             return
         
 
-        query = " call BIBLIOTECA.pegaLivro( " + str(sessao) + ", " + str(IdObra)  + " ); "
+        query = " call biblioteca.pegaLivro( " + str(sessao) + ", " + str(IdObra)  + " ); "
 
         cursor.execute(query)
-        print "Inseri o emprestimo. "
+        print( "Inseri o emprestimo. ")
 
         msg = "Ok, bons estudos.\n\n"        
         
@@ -250,19 +259,19 @@ def pegar(bot, update):
         InsereLog(func, ID_PESSOA_TELEGRAM)
         db.commit()
         
-        print "commit"
+        print( "commit")
         bot.send_message(chat_id=update.message.chat_id,
                         text=msg)
-        print "pegar - retornei a mensagem"        
+        print( "pegar - retornei a mensagem"    )    
     except Exception as e:
         print(e)
-        print "pegar - deu ruim"
+        print( "pegar - deu ruim")
         cursor = db.cursor()
         db.rollback()
     finally:
         # cursor.commit()
         # cursor.close()
-         print ""
+         print( "")
 pegar_handler = CommandHandler('pegar', pegar)
 dispatcher.add_handler(pegar_handler)
 
@@ -271,12 +280,12 @@ dispatcher.add_handler(pegar_handler)
 
 def execute(bot, update):
     try:
-        print "Execute inicio"
+        print( "Execute inicio")
         user = update.message.from_user
         text = update.message.text.replace("/execute", "")
 
         cursor = db.cursor()
-        print "comando realizado"
+        print( "comando realizado")
         cursor.execute(text)
         db.commit()
         msg = "FIM"
@@ -284,7 +293,7 @@ def execute(bot, update):
                      text=msg)
     except Exception as e:
         print(e)
-        print "pegar - deu ruim"
+        print( "pegar - deu ruim")
         db.rollback()
 
 execute_handler = CommandHandler('execute', execute)
@@ -293,7 +302,7 @@ dispatcher.add_handler(execute_handler)
 
 def Emprestimos(bot, update):
     try:
-        print "emprestimos - inicio"
+        print( "emprestimos - inicio")
         user = update.message.from_user
         ID_PESSOA_TELEGRAM = user.id
         #text = update.message.text.replace("/execute", "")
@@ -307,26 +316,29 @@ def Emprestimos(bot, update):
         # query += " AND PESSOAS.COD_PESSOA_TELEGRAM = " + str(user.id)
         # query += " GROUP BY OBR.ID_OBRA, OBR.NOM_OBRA"
 
-        result = BuscaSessao(bot, update)
-        if (len(result) == 0):
+        res = BuscaSessao(bot, update)
+        if (len(res) == 0):
             #novo por aqui
             start(bot, update)
             return 
-        if (str(result[0][2]) == ""):
+        if (str(res[0][2]) == ""):
             Bibliotecas(bot, update)
             return 
      
-        query = " call BIBLIOTECA.buscaEmprestimos( "+ str(ID_PESSOA_TELEGRAM) +" ); "
-        print query
-        cursor = db.cursor()
-        cursor.execute(query)
-        print "emprestimos - comando realizado"
+        query = " call biblioteca.buscaEmprestimos( "+ str(ID_PESSOA_TELEGRAM) +" ); "
+        print( query)
+        cursor = db.cursor(buffered=True)
+        #cursor.execute(query)
+        cursor.callproc( "biblioteca.buscaEmprestimos", [str(ID_PESSOA_TELEGRAM),])
+        print( "emprestimos - comando realizado")
         for res in cursor.stored_results():
             results = res.fetchall()
-        print "results[0] = " + str(results[0])
-        if (results[0][0] == None):
+
+        print("results")
+        print(results)
+        if (len(results) == 0):
             msg = "emprestimos - nenhum livro encontrado"
-            print msg
+            print( msg)
             bot.send_message(chat_id=update.message.chat_id,
                      text=msg)
             return
@@ -342,7 +354,7 @@ def Emprestimos(bot, update):
                      text=msg)
     except Exception as e:
         print(e)
-        print "emprestimos - deu ruim"
+        print( "emprestimos - deu ruim")
         cursor = db.cursor()
         dc.rollback()
 
@@ -353,10 +365,17 @@ dispatcher.add_handler(Emprestimos_handler)
 
 def Devolver(bot, update):
     try:
-        print "Devolver - inicio"
+        print( "Devolver - inicio")
         user = update.message.from_user
         ID_PESSOA_TELEGRAM = user.id        
-        text = update.message.text.replace("/devolver", "")
+        text = update.message.text.lower().replace("/devolver", "")
+        
+        if (text == ""):
+            msg = "Escolha um livro\nex: /Devolver 1"
+            print( msg)
+            bot.send_message(chat_id=update.message.chat_id,
+                            text=msg)
+            return
 
         result = BuscaSessao(bot, update)
         if (len(result) == 0):
@@ -367,19 +386,19 @@ def Devolver(bot, update):
             Bibliotecas(bot, update)
             return 
 
-        query = " call BIBLIOTECA.devolveLivro("+ text + ", "+ ID_PESSOA_TELEGRAM +"); "
-        print query
+        query = " call biblioteca.devolveLivro("+ text + ", "+ ID_PESSOA_TELEGRAM +"); "
+        print( query)
         cursor = db.cursor()
-        print "Criei o cursor"
+        print( "Criei o cursor")
         cursor.execute(query)
-        print "executei "
+        print( "executei ")
         for res in cursor.stored_results():
             results = cursor.fetchall()
-        print "atribui ao cursor"
+        print( "atribui ao cursor")
 
         if (results[0][0] == 1):
             msg = "DEVOLVER - emprestimo nao encontrado"
-            print msg
+            print(msg)
             bot.send_message(chat_id=update.message.chat_id,
                         text=msg)
             return
@@ -388,7 +407,7 @@ def Devolver(bot, update):
         func = "DEVOLVER"
         InsereLog(func, ID_PESSOA_TELEGRAM)
         db.commit()
-        print "Devolver - commit"
+        print( "Devolver - commit")
         msg = "Devolvido \n"
         
         bot.send_message(chat_id=update.message.chat_id,
@@ -396,7 +415,7 @@ def Devolver(bot, update):
 
     except Exception as e:
         print(e)
-        print "Devolver - deu ruim"
+        print( "Devolver - deu ruim")
         cursor = db.cursor() 
         db.rollback()
 
@@ -409,24 +428,24 @@ def Bibliotecas(bot, update):
     try:
         user = update.message.from_user
         ID_PESSOA_TELEGRAM = user.id
-        query = " call BIBLIOTECA.buscaBibliotecas(); "
+        query = " call biblioteca.buscaBibliotecas(); "
 
         cursor = db.cursor()
-        print "Criei o cursor"
-        cursor.callproc( "BIBLIOTECA.buscaBibliotecas")
-        print "Bibliotecas - comando realizado"
+        print( "Criei o cursor")
+        cursor.callproc( "biblioteca.buscaBibliotecas")
+        print( "Bibliotecas - comando realizado")
 
         for res in cursor.stored_results():
             results = res.fetchall()
 
 
-        if (results[0][0] == None):
+        if (len(results) == 0):
             msg = "Bibliotecas - nenhuma Biblioteca encontrada"
-            print msg
+            print( msg)
             bot.send_message(chat_id=update.message.chat_id,
                         text=msg)
             return
-        print results[0][0]
+        print( results[0][0])
         msg = "Conecte-se a uma biblioteca:\n"
         msg += "ID - Biblioteca \n"
         for row in results:
@@ -440,7 +459,7 @@ def Bibliotecas(bot, update):
                         text=msg)
     except Exception as e:
         print(e)
-        print "Bibliotecas - deu ruim"
+        print( "Bibliotecas - deu ruim")
         cursor = db.cursor()
         db.rollback()
 
@@ -452,15 +471,24 @@ def Conectar(bot, update):
     try:
         user = update.message.from_user
         ID_PESSOA_TELEGRAM = user.id
-        text = update.message.text.replace("/conectar", "")
-        
-        query = " call BIBLIOTECA.criaSessao(" + str(text) + ", " + str(ID_PESSOA_TELEGRAM) + " ); "
+        text = update.message.text.lower().replace("/conectar", "")
+        text = text.replace("/", "")
+        text = text.strip()
 
-        print "query = " + query
+        if (text == "" or (not text.isnumeric()) ):
+            msg = "Escolha um livro\nex: /Conectar 1"
+            print( msg)
+            bot.send_message(chat_id=update.message.chat_id,
+                            text=msg)
+            return
+
+        query = " call biblioteca.criaSessao(" + str(text) + ", " + str(ID_PESSOA_TELEGRAM) + " ); "
+
+        print( "query = " + query)
         cursor = db.cursor()
-        print "Criei o cursor"
+        print( "Criei o cursor")
         cursor.execute(query)
-        print "Conectar - comando realizado"
+        print( "Conectar - comando realizado")
 
 
         func = "CONECTAR"
@@ -470,7 +498,7 @@ def Conectar(bot, update):
         start(bot, update)
     except Exception as e:
         print(e)
-        print "Conectar - deu ruim"
+        print( "Conectar - deu ruim")
         cursor = db.cursor()
         db.rollback()
 
@@ -522,7 +550,7 @@ def unknown(bot, update):
         return
     except Exception as e:
         print(e)
-        print "Unknow - deu ruim"
+        print( "Unknow - deu ruim")
         cursor = db.cursor()
         db.rollback()
 unknown_handler = MessageHandler([Filters.command], unknown)
@@ -536,14 +564,14 @@ def BuscaSessao(bot, update):
     ID_PESSOA_TELEGRAM = user.id
     cursor = db.cursor()
 
-    #query = " call BIBLIOTECA.buscaSessao( " + str(ID_PESSOA_TELEGRAM) + " ); "
+    #query = " call biblioteca.buscaSessao( " + str(ID_PESSOA_TELEGRAM) + " ); "
     args = [ID_PESSOA_TELEGRAM]
-    cursor.callproc( "BIBLIOTECA.buscaSessao", args)
+    cursor.callproc( "biblioteca.buscaSessao", args)
     #cursor.execute(query)
-    #print '1'
+    #print( '1')
     for res in cursor.stored_results():
-        #print 2
-        print "res = " + str(res)
+        #print( 2)
+        #print( "res = " + str(res))
         return res.fetchall()
         
 
@@ -555,7 +583,7 @@ def InsereLog(funcao, ID_PESSOA_TELEGRAM):
     
     cursor = db.cursor()
 
-    query = " call BIBLIOTECA.insereLog( " + str(ID_PESSOA_TELEGRAM) +", '"+ str(funcao) + "' ); "
+    query = " call biblioteca.insereLog( " + str(ID_PESSOA_TELEGRAM) +", '"+ str(funcao) + "' ); "
 
     cursor.execute(query)
     
@@ -568,12 +596,12 @@ def BuscaLog(update):
     cursor = db.cursor()
 
     args = [ID_PESSOA_TELEGRAM]
-    cursor.callproc( "BIBLIOTECA.buscaComando", args)
+    cursor.callproc( "biblioteca.buscaComando", args)
 
     for res in cursor.stored_results():
-        print 2
+        print( 2)
         BIBLIO = str(res.fetchall()[0][1])
-        print "str(res.fetchall()[0][1]) = " + BIBLIO
+        print( "str(res.fetchall()[0][1]) = " + BIBLIO)
         return BIBLIO
         
     return ""
