@@ -194,7 +194,7 @@ def pegar(bot, update):
         user = update.message.from_user
         ID_PESSOA_TELEGRAM = user.id
         text = update.message.text.lower().replace("/pegar", "")
-        text = text.replace(" ", "")
+        text = text.replace("/", "").replace(" ", "")
         text = text.strip()
 
         print( "id usuario: " + str(user.id))
@@ -223,7 +223,8 @@ def pegar(bot, update):
             Bibliotecas(bot, update)
             return 
 
-        sessao = str(result[0][2])
+        sessao = str(result[0][1])
+        biblioteca = str(result[0][2])
         IdObra = text
 
         query =  ' select MIN(LIV.ID_LIVRO)'
@@ -232,14 +233,12 @@ def pegar(bot, update):
         query += ' left join EMPRESTIMOS EMP ON ( EMP.COD_LIVRO = LIV.ID_LIVRO AND EMP.DT_DEVOLUCAO IS NULL ) '
         query += ' where ID_EMPRESTIMO IS NULL'
         query += ' AND ID_OBRA = ' + text
-        query += ' '
+        query += ' AND LIV.COD_BIBLIOTECA = ' + biblioteca 
 
         cursor.execute(query)
         print( "busquei o livro ")
         results = cursor.fetchall()
         print( "len(results) = " + str(len(results)))
-        print( "str(results[0][0]) = " + str(results[0][0]))
-        print( "bool = " + str(results[0][0] == None))
         if (len(results) == 0):
             msg = "livro nao disponivel"
             print( msg)
@@ -249,7 +248,7 @@ def pegar(bot, update):
         
 
         query = " call biblioteca.pegaLivro( " + str(sessao) + ", " + str(IdObra)  + " ); "
-
+        print (query)
         cursor.execute(query)
         print( "Inseri o emprestimo. ")
 
@@ -343,9 +342,9 @@ def Emprestimos(bot, update):
                      text=msg)
             return
 
-        msg = "ID - LIVRO (QUANTIDADE) \n"
+        msg = "Empréstimos em todas as bibliotecas:\nID - LIVRO (QUANTIDADE) \n"
         for row in results:
-            msg += "/" + str(row[0]) + " - " +  row[1] +" (" +str(row[2]) + ")\n"
+            msg += "/" + str(row[0]) + " - " +  row[1] +"\n"
 
         func = "EMPRESTIMOS"
         InsereLog(func, ID_PESSOA_TELEGRAM)
@@ -369,7 +368,8 @@ def Devolver(bot, update):
         user = update.message.from_user
         ID_PESSOA_TELEGRAM = user.id        
         text = update.message.text.lower().replace("/devolver", "")
-        
+        text = text.replace("/", "").replace(" ", "").strip()
+
         if (text == ""):
             msg = "Escolha um livro\nex: /Devolver 1"
             print( msg)
@@ -385,25 +385,31 @@ def Devolver(bot, update):
         if (str(result[0][2]) == ""):
             Bibliotecas(bot, update)
             return 
-
-        query = " call biblioteca.devolveLivro("+ text + ", "+ ID_PESSOA_TELEGRAM +"); "
-        print( query)
-        cursor = db.cursor()
         print( "Criei o cursor")
-        cursor.execute(query)
-        print( "executei ")
+        cursor = db.cursor()
+        cursor.callproc( "biblioteca.buscaEmprestimos", [str(ID_PESSOA_TELEGRAM),])
+        print( "DEVOLVER - comando realizado")
         for res in cursor.stored_results():
-            results = cursor.fetchall()
-        print( "atribui ao cursor")
-
-        if (results[0][0] == 1):
+            results = res.fetchall()
+        ids = [row[0] for row in results]
+        print ("ids")
+        print (ids)
+        if (not int(text) in ids):
             msg = "DEVOLVER - emprestimo nao encontrado"
             print(msg)
             bot.send_message(chat_id=update.message.chat_id,
                         text=msg)
             return
         
+        query = " call biblioteca.devolveLivro("+ text + "); "
+
+        print( query)
         
+        cursor.execute(query)
+        print( "executei ")
+        for res in cursor.stored_results():
+            results = cursor.fetchall()
+
         func = "DEVOLVER"
         InsereLog(func, ID_PESSOA_TELEGRAM)
         db.commit()
@@ -538,9 +544,9 @@ def unknown(bot, update):
             return
 
         if (log == "EMPRESTIMOS"):
-            txt = "/pegar " + text
+            txt = "/devolver " + text
             update.message.text = txt
-            pegar(bot,update)
+            Devolver(bot,update)
             return
 
 
