@@ -51,8 +51,8 @@ def start(bot, update):
         else:
             print("result[0]")
             print(result[0])
-            if str(result[0][2]) != None and str(result[0][2]) != "":
-                msg += "Conectado a biblioteca: " + str(result[0][2]) + "\n\n"
+            if str(result[0][2]) != None and str(result[0][3]) != "":
+                msg += "Conectado a biblioteca: " + str(result[0][3]) + "\n\n"
             
 
 
