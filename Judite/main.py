@@ -40,9 +40,9 @@ def start(bot, update):
         if (len(result) == 0):
             print( "novo por aqui")
             cursor = db.cursor()
-            nome = user.first_name + " " + user.last_name
+            nome = str(user.first_name) + " " + str(user.last_name)
             print( "nome = " + nome)
-            query = " call biblioteca.inserePessoa( " + str(user.id) +", '" + user.username +"', '" + nome + "'); "
+            query = " call biblioteca.inserePessoa( " + str(user.id) +", '" + str(user.username) +"', '" + nome.strip() + "'); "
             print( query)
             cursor.execute(query)
 
